@@ -115,15 +115,16 @@ def get_recos(name):
         reco=spotify.recommendations(market='fr', seed_artists=[artistrelated_uri], limit=3)
         for trackreco in reco['tracks'] :
             artist_ids.append(trackreco['artists'][0]['id'])
-            trackreco_id=["spotify:track:" + trackreco['id']]
+#             trackreco_id=["spotify:track:" + trackreco['id']]
+            trackreco_idtrackreco['id']
             print(trackreco_id)
             final_top_track.append(trackreco_id)
 
         #pour chaque artiste lié, on récupère ses 10 tops tracks
         result=spotify.artist_top_tracks(artistrelated_id, country='FR')
         for toptrack in result['tracks']:
-            trackid=["spotify:track:" + toptrack['id']]
-            print(trackid)
+            trackid=toptrack['id']
+#             trackid=["spotify:track:" + toptrack['id']]
             final_top_track.append(trackid)
     print(final_top_track)
             
