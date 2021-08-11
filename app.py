@@ -80,7 +80,7 @@ def create_playlist():
         current_userid=spotify.me()["id"] 
         playlist_info=spotify.user_playlist_create(current_userid,name=str(name), public=False)
         tracks=get_recos(name)
-        spotify.user_playlist_add_tracks(current_userid, playlist_info['id'], tracks)
+#         spotify.user_playlist_add_tracks(current_userid, playlist_info['id'], tracks)
         return render_template('success.html', name=str(name), info_artiste=str(tracks))
         
         
@@ -101,29 +101,29 @@ def get_recos(name):
     
     results_search=spotify.search(str(name), type='artist', limit=1)
     artistid=results_search['artists']['items'][0]['uri']
-            # on cherche les artistes associés 
+    # on cherche les artistes associés 
     related = spotify.artist_related_artists(artistid)
-    for artistrelated in related['artists']:       
-        artistrelated_id = artistrelated['id']
-        artistrelated_uri=artistrelated['uri']
-        artist_ids.add(artistrelated_id)
+#     for artistrelated in related['artists']:       
+#         artistrelated_id = artistrelated['id']
+#         artistrelated_uri=artistrelated['uri']
+#         artist_ids.add(artistrelated_id)
        
-        #Pour chaque artiste lié on récupère un nombre de chanson recommandées (pas forcément de cet artiste)
-        reco=spotify.recommendations(market='fr', seed_artists=[artistrelated_uri], limit=3)
-        for trackreco in reco['tracks'] :
-            artist_ids.append(trackreco['artists'][0]['id'])
-            trackreco_id=["spotify:track:" + trackreco['id']]
-            final_top_track.add(trackreco_id)
+#         #Pour chaque artiste lié on récupère un nombre de chanson recommandées (pas forcément de cet artiste)
+#         reco=spotify.recommendations(market='fr', seed_artists=[artistrelated_uri], limit=3)
+#         for trackreco in reco['tracks'] :
+#             artist_ids.append(trackreco['artists'][0]['id'])
+#             trackreco_id=["spotify:track:" + trackreco['id']]
+#             final_top_track.add(trackreco_id)
 
-        #pour chaque artiste lié, on récupère ses 10 tops tracks
-        result=spotify.artist_top_tracks(artistrelated_id, country='FR')
-        for toptrack in result['tracks']:
-            trackid=["spotify:track:" + toptrack['id']]
-            final_top_track.add(trackid)
-        shuffle(final_top_track)
-        final_top_track=final_top_track[:10]
+#         #pour chaque artiste lié, on récupère ses 10 tops tracks
+#         result=spotify.artist_top_tracks(artistrelated_id, country='FR')
+#         for toptrack in result['tracks']:
+#             trackid=["spotify:track:" + toptrack['id']]
+#             final_top_track.add(trackid)
+#         shuffle(final_top_track)
+#         final_top_track=final_top_track[:10]
         
-    return final_top_track
+    return related
 
     
     
