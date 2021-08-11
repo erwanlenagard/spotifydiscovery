@@ -1,7 +1,10 @@
 import os
-from flask import Flask, session, request, redirect
+from flask import Flask, session, request, render_template, redirect, url_for
 from flask_session import Session
 from flask_bootstrap import Bootstrap
+from flask_wtf import FlaskForm
+from wtforms import StringField, SubmitField
+from wtforms.validators import DataRequired
 
 import spotipy
 import uuid
@@ -13,12 +16,18 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(64)
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_FILE_DIR'] = './.flask_session/'
-Session(app)
+# Session(app)
 Bootstrap(app)
 
 caches_folder = './.spotify_caches/'
 if not os.path.exists(caches_folder):
     os.makedirs(caches_folder)
+    
+    
+class NameForm(FlaskForm):
+    name = StringField('Artiste', validators=[DataRequired()])
+    submit = SubmitField('Valider')    
+    
 
 def session_cache_path():
     return caches_folder + session.get('uuid')
@@ -63,10 +72,12 @@ def create_playlist():
 
     spotify = spotipy.Spotify(auth_manager=auth_manager)
     current_userid=spotify.me()["id"]
+    form = NameForm()
+    if form.validate_on_submit():
+        name = form.name.data
+        spotify.user_playlist_create(current_userid,name=name, public=False)
     
-    
-    
-    return spotify.user_playlist_create(current_userid,name="test", public=False)
+    return f'<h1>Une playlist a été créée</h2>'
 
 
 
