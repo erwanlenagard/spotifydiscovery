@@ -78,6 +78,9 @@ def create_playlist():
 #         return new_playlist(name)
         current_userid=spotify.me()["id"] 
         playlist_info=spotify.user_playlist_create(current_userid,name=str(name), public=False)
+        results_search=spotify.search(str(name), type='artist', limit=1)
+        artistid=results_search['artists']['items'][0]['uri']
+        return render_template('success.html', name=str(name), info_artiste=str(results_search))
         
         
     return render_template('form.html', form=form, message="coucou")

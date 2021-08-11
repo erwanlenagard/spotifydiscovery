@@ -1,0 +1,33 @@
+{% extends 'bootstrap/base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block styles %}
+{{ super() }}
+    <style>
+        body { background: #e1e1e1; }
+    </style>
+{% endblock %}
+
+
+{% block title %}
+Succès
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
+
+      <h1 class="pt-5 pb-2">La playlist a été généré pour {{name}}</h1>
+
+      <p class="lead">voici les infos de l'artiste</p>
+
+      {{info_artiste}}
+
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
