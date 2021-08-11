@@ -2,6 +2,12 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import streamlit as st
 
+caches_folder = './'
+if not os.path.exists(caches_folder):
+    os.makedirs(caches_folder)
+    
+def session_cache_path():
+    return caches_folder + session.get('uuid')
 
 
 def main():
@@ -47,9 +53,13 @@ def main():
 
         #connect to spotify
         code = oauth.parse_response_code(response)
+        st.write(code)
         token_info = oauth.get_access_token(code)
+        st.write(token_info)
         token = token_info['access_token']
+        st.write(token)
         sp = spotipy.Spotify(auth=token)
+        st.write("connecté")
         current_user=sp.current_user()
         st.write(current_user)
 
