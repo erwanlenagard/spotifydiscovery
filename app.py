@@ -83,12 +83,18 @@ def create_playlist():
         current_userid=spotify.me()["id"] 
         playlist_info=spotify.user_playlist_create(current_userid,name=str(name), public=False)
         tracks=get_recos(name)
-        spotify.user_playlist_add_tracks(current_userid, playlist_info['id'], tracks)
+        track_chunks=chunks(tracks,100)
+        for chunk in track_chunks:
+            spotify.user_playlist_add_tracks(current_userid, playlist_info['id'], chunk)
         return render_template('success.html', name=str(name), info_artiste="coucou")
         
         
     return render_template('form.html', form=form, message="coucou")
 
+def chunks(lst, n):
+    """Yield successive n-sized chunks from lst."""
+    for i in range(0, len(lst), n):
+        yield lst[i:i + n]
 
 def get_recos(name):
     cache_handler = spotipy.cache_handler.CacheFileHandler(cache_path=session_cache_path())
