@@ -109,7 +109,7 @@ def get_recos(name):
     for artistrelated in related['artists']:       
         artistrelated_id = artistrelated['id']
         artistrelated_uri=artistrelated['uri']
-        artist_ids.add(artistrelated_id)
+        artist_ids.append(artistrelated_id)
        
         #Pour chaque artiste lié on récupère un nombre de chanson recommandées (pas forcément de cet artiste)
         reco=spotify.recommendations(market='fr', seed_artists=[artistrelated_uri], limit=3)
