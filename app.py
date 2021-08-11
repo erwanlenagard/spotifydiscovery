@@ -10,7 +10,7 @@ import spotipy
 import uuid
 from random import shuffle
 
-
+import logging
 
 
 app = Flask(__name__)
@@ -19,6 +19,9 @@ app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_FILE_DIR'] = './.flask_session/'
 Session(app)
 Bootstrap(app)
+
+app.logger.addHandler(logging.StreamHandler(sys.stdout))
+app.logger.setLevel(logging.ERROR)
 
 caches_folder = './.spotify_caches/'
 if not os.path.exists(caches_folder):
@@ -95,8 +98,8 @@ def get_recos(name):
 
     spotify = spotipy.Spotify(auth_manager=auth_manager)
     
-    final_top_track=set() 
-    artist_ids=set()
+    final_top_track=frozenset() 
+    artist_ids=frozenset()
     
     
     results_search=spotify.search(str(name), type='artist', limit=1)
@@ -117,13 +120,13 @@ def get_recos(name):
 
         #pour chaque artiste lié, on récupère ses 10 tops tracks
         result=spotify.artist_top_tracks(artistrelated_id, country='FR')
-#         for toptrack in result['tracks']:
-#             trackid=["spotify:track:" + toptrack['id']]
-#             final_top_track.add(trackid)
-#         shuffle(final_top_track)
-#         final_top_track=final_top_track[:10]
+        for toptrack in result['tracks']:
+            trackid=["spotify:track:" + toptrack['id']]
+            final_top_track.add(trackid)
+        shuffle(final_top_track)
+        final_top_track=final_top_track[:10]
         
-    return result
+    return final_top_track
 
     
     
