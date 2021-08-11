@@ -1,6 +1,7 @@
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import streamlit as st
+import os
 
 caches_folder = './'
 if not os.path.exists(caches_folder):
