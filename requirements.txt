@@ -1,0 +1,2 @@
+spotipy==2.18.0
+streamlit==0.85.0
