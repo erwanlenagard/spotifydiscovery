@@ -25,8 +25,8 @@ if not os.path.exists(caches_folder):
     
     
 class NameForm(FlaskForm):
-    name = StringField('Artiste', validators=[DataRequired()])
-    submit = SubmitField('Valider')    
+    name = StringField('Indiquez un nom d\'artiste', validators=[DataRequired()])
+    submit = SubmitField('Obtenir des recommendations')    
     
 
 def session_cache_path():
@@ -75,10 +75,11 @@ def create_playlist():
     form = NameForm()
     if form.validate_on_submit():
         name = form.name.data
-        return new_playlist(name)
+#         return new_playlist(name)
+        current_userid=spotify.me()["id"] 
+        playlist_info=spotify.user_playlist_create(current_userid,name=str(name), public=False)
         
-       
-#     return render_template('form.html', form=form, message=new_playlist(name))
+        
     return render_template('form.html', form=form, message="coucou")
 
 
