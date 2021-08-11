@@ -98,8 +98,8 @@ def get_recos(name):
 
     spotify = spotipy.Spotify(auth_manager=auth_manager)
     
-    final_top_track=frozenset() 
-    artist_ids=frozenset()
+    final_top_track=set() 
+    artist_ids=set()
     
     
     results_search=spotify.search(str(name), type='artist', limit=1)
@@ -123,10 +123,10 @@ def get_recos(name):
         for toptrack in result['tracks']:
             trackid=["spotify:track:" + toptrack['id']]
             final_top_track.add(trackid)
-        shuffle(final_top_track)
-        final_top_track=final_top_track[:10]
+        shuffle(final_top_track=list(final_top_track))
         
-    return final_top_track
+        
+    return final_top_track[:10]
 
     
     
