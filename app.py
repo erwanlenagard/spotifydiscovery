@@ -116,7 +116,7 @@ def get_recos(name):
         for trackreco in reco['tracks'] :
             artist_ids.append(trackreco['artists'][0]['id'])
 #             trackreco_id=["spotify:track:" + trackreco['id']]
-            trackreco_idtrackreco['id']
+            trackreco_id=trackreco['id']
             print(trackreco_id)
             final_top_track.append(trackreco_id)
 
