@@ -77,7 +77,7 @@ def create_playlist():
         name = form.name.data
         spotify.user_playlist_create(current_userid,name=name, public=False)
     
-    return f'<h1>Une playlist a été créée</h2>'
+    return render_template('/templates/form.html', form=form, message="ici mon message")
 
 
 
