@@ -42,9 +42,26 @@ def index():
     spotify = spotipy.Spotify(auth_manager=auth_manager)
     return f'<h2>Hi {spotify.me()["display_name"]}, ' \
            f'<small><a href="/sign_out">[sign out]<a/></small></h2>' \
+           f'<a href="/create_playlist">create_playlist</a> | ' \
            f'<a href="/playlists">my playlists</a> | ' \
            f'<a href="/currently_playing">currently playing</a> | ' \
-		   f'<a href="/current_user">me</a>' \
+           f'<a href="/current_user">me</a>' \
+
+
+@app.route('/create_playlist')
+def create_playlist():
+    cache_handler = spotipy.cache_handler.CacheFileHandler(cache_path=session_cache_path())
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    current_userid=spotify.me()["id"]
+    
+    
+    return sp.user_playlist_create(current_userid,name="test", public=False)
+
+
 
 
 @app.route('/sign_out')
