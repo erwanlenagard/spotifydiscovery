@@ -127,12 +127,12 @@ def get_recos(name):
             final_top_track.append(trackid)
     print(final_top_track)
             
-    l_top_track=list(set(final_top_track))
+#     l_top_track=list(set(final_top_track))
 #     shuffle(l_top_track)
 
         
         
-    return l_top_track[:10]
+    return final_top_track[:10]
 
     
     
