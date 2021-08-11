@@ -27,7 +27,7 @@ def main():
         SPOTIPY_REDIRECT_URI="{}".format('https://spotifydiscovery.herokuapp.com')
 
         print(scope)
-        sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=SPOTIPY_CLIENT_ID,client_secret=SPOTIPY_CLIENT_SECRET, redirect_uri=SPOTIPY_REDIRECT_URI, scope=scope))
+        sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=SPOTIPY_CLIENT_ID,client_secret=SPOTIPY_CLIENT_SECRET, redirect_uri=SPOTIPY_REDIRECT_URI, scope=scope,cache_path=session_cache_path()))
 
         playlist=sp.user_playlist_create(username,name="test", public=False)
         st.write("playslist créée")
