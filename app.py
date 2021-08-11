@@ -120,10 +120,10 @@ def get_recos(name):
         for toptrack in result['tracks']:
             trackid=["spotify:track:" + toptrack['id']]
             final_top_track.add(trackid)
-        shuffle(final_top_track)
-        final_top_track=final_top_track[:10]
+#         shuffle(final_top_track)
+#         final_top_track=final_top_track[:10]
         
-    return final_top_track
+    return final_top_track[:10]
 
     
     
