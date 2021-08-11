@@ -65,21 +65,26 @@ def index():
 
 @app.route('/create_playlist')
 def create_playlist():
+    
+    form = NameForm()
+    if form.validate_on_submit():
+        name = form.name.data
+        
+    
+    return render_template('form.html', form=form, message=new_playlist(name))
+
+
+def new_playlist(name):
     cache_handler = spotipy.cache_handler.CacheFileHandler(cache_path=session_cache_path())
     auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
     if not auth_manager.validate_token(cache_handler.get_cached_token()):
         return redirect('/')
 
     spotify = spotipy.Spotify(auth_manager=auth_manager)
-    current_userid=spotify.me()["id"]
-    form = NameForm()
-    if form.validate_on_submit():
-        name = form.name.data
-        spotify.user_playlist_create(current_userid,name=name, public=False)
+    current_userid=spotify.me()["id"] 
+    playlist_info=spotify.user_playlist_create(current_userid,name=name, public=False)
     
-    return render_template('form.html', form=form, message="ici mon message")
-
-
+    return playlist_info
 
 
 @app.route('/sign_out')
