@@ -116,16 +116,19 @@ def get_recos(name):
         for trackreco in reco['tracks'] :
             artist_ids.append(trackreco['artists'][0]['id'])
             trackreco_id=["spotify:track:" + trackreco['id']]
+            print(trackreco_id)
             final_top_track.append(trackreco_id)
 
         #pour chaque artiste lié, on récupère ses 10 tops tracks
         result=spotify.artist_top_tracks(artistrelated_id, country='FR')
         for toptrack in result['tracks']:
             trackid=["spotify:track:" + toptrack['id']]
+            print(trackid)
             final_top_track.append(trackid)
+    print(final_top_track)
             
     l_top_track=list(set(final_top_track))
-    shuffle(l_top_track)
+#     shuffle(l_top_track)
 
         
         
