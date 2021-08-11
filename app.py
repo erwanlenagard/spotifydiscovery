@@ -65,14 +65,20 @@ def index():
 
 @app.route('/create_playlist', methods=['GET', 'POST'])
 def create_playlist():
+    cache_handler = spotipy.cache_handler.CacheFileHandler(cache_path=session_cache_path())
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
     
     form = NameForm()
     if form.validate_on_submit():
         name = form.name.data
-        print(name)
-        f'{name}'
+        playlist_info=new_playlist(name)
+       
 #     return render_template('form.html', form=form, message=new_playlist(name))
-    return render_template('form.html', form=form, message="coucou")
+    return render_template('form.html', form=form, message=playlist_info)
 
 
 def new_playlist(name):
