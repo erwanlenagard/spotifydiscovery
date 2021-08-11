@@ -63,7 +63,7 @@ def index():
            f'<a href="/current_user">me</a>' \
 
 
-@app.route('/create_playlist')
+@app.route('/create_playlist', methods=['GET', 'POST'])
 def create_playlist():
     
     form = NameForm()
@@ -71,7 +71,7 @@ def create_playlist():
         name = form.name.data
     
 #     return render_template('form.html', form=form, message=new_playlist(name))
-    return render_template('form.html', form=form, message="coucou")
+    return render_template('form.html', form=form, message=name)
 
 
 def new_playlist(name):
