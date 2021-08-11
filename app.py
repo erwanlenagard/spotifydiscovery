@@ -103,13 +103,13 @@ def get_recos(name):
     artistid=results_search['artists']['items'][0]['uri']
     # on cherche les artistes associés 
     related = spotify.artist_related_artists(artistid)
-#     for artistrelated in related['artists']:       
-#         artistrelated_id = artistrelated['id']
-#         artistrelated_uri=artistrelated['uri']
-#         artist_ids.add(artistrelated_id)
+    for artistrelated in related['artists']:       
+        artistrelated_id = artistrelated['id']
+        artistrelated_uri=artistrelated['uri']
+        artist_ids.add(artistrelated_id)
        
-#         #Pour chaque artiste lié on récupère un nombre de chanson recommandées (pas forcément de cet artiste)
-#         reco=spotify.recommendations(market='fr', seed_artists=[artistrelated_uri], limit=3)
+        #Pour chaque artiste lié on récupère un nombre de chanson recommandées (pas forcément de cet artiste)
+        reco=spotify.recommendations(market='fr', seed_artists=[artistrelated_uri], limit=3)
 #         for trackreco in reco['tracks'] :
 #             artist_ids.append(trackreco['artists'][0]['id'])
 #             trackreco_id=["spotify:track:" + trackreco['id']]
@@ -123,7 +123,7 @@ def get_recos(name):
 #         shuffle(final_top_track)
 #         final_top_track=final_top_track[:10]
         
-    return related
+    return reco
 
     
     
