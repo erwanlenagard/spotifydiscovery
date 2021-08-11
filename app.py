@@ -83,8 +83,8 @@ def create_playlist():
         current_userid=spotify.me()["id"] 
         playlist_info=spotify.user_playlist_create(current_userid,name=str(name), public=False)
         tracks=get_recos(name)
-#         spotify.user_playlist_add_tracks(current_userid, playlist_info['id'], tracks)
-        return render_template('success.html', name=str(name), info_artiste=str(tracks))
+        spotify.user_playlist_add_tracks(current_userid, playlist_info['id'], tracks)
+        return render_template('success.html', name=str(name), info_artiste="coucou")
         
         
     return render_template('form.html', form=form, message="coucou")
@@ -123,10 +123,13 @@ def get_recos(name):
         for toptrack in result['tracks']:
             trackid=["spotify:track:" + toptrack['id']]
             final_top_track.add(trackid)
-        shuffle(final_top_track=list(final_top_track))
+            
+    l_top_track=list(final_top_track)
+    shuffle(l_top_track)
+
         
         
-    return final_top_track[:10]
+    return l_top_track[:10]
 
     
     
