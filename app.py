@@ -59,7 +59,8 @@ def create_playlist():
     current_userid=spotify.me()["id"]
     
     
-    return sp.user_playlist_create(current_userid,name="test", public=False)
+    
+    return spotify.user_playlist_create(current_userid,name="test", public=False)
 
 
 
