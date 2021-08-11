@@ -8,6 +8,7 @@ from wtforms.validators import DataRequired
 
 import spotipy
 import uuid
+from random import shuffle
 
 
 
@@ -78,13 +79,54 @@ def create_playlist():
 #         return new_playlist(name)
         current_userid=spotify.me()["id"] 
         playlist_info=spotify.user_playlist_create(current_userid,name=str(name), public=False)
-        results_search=spotify.search(str(name), type='artist', limit=1)
-        artistid=results_search['artists']['items'][0]['uri']
-        return render_template('success.html', name=str(name), info_artiste=str(results_search))
+        tracks=get_recos(name)
+        spotify.user_playlist_add_tracks(current_userid, playlist_info['id'], tracks)
+        return render_template('success.html', name=str(name), info_artiste=str(tracks))
         
         
     return render_template('form.html', form=form, message="coucou")
 
+
+def get_recos(name):
+    cache_handler = spotipy.cache_handler.CacheFileHandler(cache_path=session_cache_path())
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    
+    final_top_track=set() 
+    artist_ids=set()
+    
+    
+    results_search=spotify.search(str(name), type='artist', limit=1)
+    artistid=results_search['artists']['items'][0]['uri']
+            # on cherche les artistes associés 
+    related = spotify.artist_related_artists(artistid)
+    for artistrelated in related['artists']:       
+        artistrelated_id = artistrelated['id']
+        artist_ids.add(artistrelated_id)
+       
+        #Pour chaque artiste lié on récupère un nombre de chanson recommandées (pas forcément de cet artiste)
+        reco=spotify.recommendations(market='fr', seed_artists=[artistrelated_uri], limit=3)
+        for trackreco in reco['tracks'] :
+            artist_ids.append(trackreco['artists'][0]['id'])
+            trackreco_id=["spotify:track:" + trackreco['id']]
+            final_top_track.add(trackreco_id)
+
+        #pour chaque artiste lié, on récupère ses 10 tops tracks
+        result=spotify.artist_top_tracks(artistrelated_id, country='FR')
+        for toptrack in result['tracks']:
+            trackid=["spotify:track:" + toptrack['id']]
+            final_top_track.add(trackid)
+        shuffle(final_top_track)
+        final_top_track=final_top_track[:10]
+        
+    return final_top_track
+
+    
+    
+    
 
 def new_playlist(name):
     cache_handler = spotipy.cache_handler.CacheFileHandler(cache_path=session_cache_path())
