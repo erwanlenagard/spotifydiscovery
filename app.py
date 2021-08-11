@@ -34,7 +34,7 @@ def main():
         scope=scope
         )
     auth_url = oauth.get_authorize_url()
-    st.write(auth_url)
+    st.write("<a href=\""+auth_url+"\" target=\"_blank\">Se connecter</a>", unsafe_allow_html=True)   
     response = st.text_input('Click the link above, then copy the URL from the new tab, paste it here, and press enter: ')
     
     
@@ -50,17 +50,11 @@ def main():
         token_info = oauth.get_access_token(code)
         token = token_info['access_token']
         sp = spotipy.Spotify(auth=token)
-        
-        
-        
-        
-        
-        
+        current_user=sp.current_user()
+        st.write(current_user)
 
-        print(scope)
-#         sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=SPOTIPY_CLIENT_ID,client_secret=SPOTIPY_CLIENT_SECRET, redirect_uri=SPOTIPY_REDIRECT_URI, scope=scope,cache_path=".cache"))
-
-        playlist=sp.user_playlist_create(username,name="test", public=False)
+        playlist=sp.user_playlist_create(current_user['id'],name="test", public=False)
+        st.write(playlist)
         st.write("playslist créée")
 
 
