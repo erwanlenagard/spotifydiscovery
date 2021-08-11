@@ -80,7 +80,7 @@ def create_playlist():
         current_userid=spotify.me()["id"] 
         playlist_info=spotify.user_playlist_create(current_userid,name=str(name), public=False)
         tracks=get_recos(name)
-        spotify.user_playlist_add_tracks(current_userid, playlist_info['id'], tracks)
+#         spotify.user_playlist_add_tracks(current_userid, playlist_info['id'], tracks)
         return render_template('success.html', name=str(name), info_artiste=str(tracks))
         
         
