@@ -1,79 +1,102 @@
-import spotipy
-from spotipy.oauth2 import SpotifyOAuth
-import streamlit as st
 import os
+from flask import Flask, session, request, redirect
+from flask_session import Session
+import spotipy
+import uuid
 
-caches_folder = './'
+app = Flask(__name__)
+app.config['SECRET_KEY'] = os.urandom(64)
+app.config['SESSION_TYPE'] = 'filesystem'
+app.config['SESSION_FILE_DIR'] = './.flask_session/'
+Session(app)
+
+caches_folder = './.spotify_caches/'
 if not os.path.exists(caches_folder):
     os.makedirs(caches_folder)
-    
+
 def session_cache_path():
     return caches_folder + session.get('uuid')
 
+@app.route('/')
+def index():
+    if not session.get('uuid'):
+        # Step 1. Visitor is unknown, give random ID
+        session['uuid'] = str(uuid.uuid4())
 
-def main():
-    #############################
-    # CONFIGURATION DE LA PAGE
-    #############################
-    
-    st.set_page_config(
-        page_title="Recommandations Spotify",
-        page_icon="🧊",
-        layout="wide",
-        initial_sidebar_state="expanded",
-    )
-    st.sidebar.title('Paramètres')
-    st.title('Recommandations Spotify')
-    username=st.sidebar.text_input("Nom d'utilisateur", value='erwan.lenagard', max_chars=None, key=None, type='default')
-    
-    scope = 'playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private streaming ugc-image-upload user-follow-modify user-follow-read user-library-read user-library-modify user-read-private user-read-birthdate user-read-email user-top-read user-read-playback-state user-modify-playback-state user-read-currently-playing user-read-recently-played'
+    cache_handler = spotipy.cache_handler.CacheFileHandler(cache_path=session_cache_path())
+    auth_manager = spotipy.oauth2.SpotifyOAuth(scope='user-read-currently-playing playlist-modify-private',
+                                                cache_handler=cache_handler, 
+                                                show_dialog=True)
 
-    SPOTIPY_CLIENT_ID='c35363c3c06b4a459d30b2b4da74fd19'
-    SPOTIPY_CLIENT_SECRET='eb7c7d1a84774f7b89cdfd901e2f33ec'
-    SPOTIPY_REDIRECT_URI="{}".format('https://spotifydiscovery.herokuapp.com')
-    
-    
-    #initializing spotify oauth
-    oauth = SpotifyOAuth(
-        client_id=SPOTIPY_CLIENT_ID,
-        client_secret=SPOTIPY_CLIENT_SECRET,
-        redirect_uri=SPOTIPY_REDIRECT_URI,
-        scope=scope
-        )
-    auth_url = oauth.get_authorize_url()
-    st.write("<a href=\""+auth_url+"\" target=\"_blank\">Se connecter</a>", unsafe_allow_html=True)   
-    response = st.text_input('Click the link above, then copy the URL from the new tab, paste it here, and press enter: ')
-    
-    
-    
-    
-    
-    
-    if st.sidebar.button('Obtenir des recommandations'):
+    if request.args.get("code"):
+        # Step 3. Being redirected from Spotify auth page
+        auth_manager.get_access_token(request.args.get("code"))
+        return redirect('/')
+
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        # Step 2. Display sign in link when no token
+        auth_url = auth_manager.get_authorize_url()
+        return f'<h2><a href="{auth_url}">Sign in</a></h2>'
+
+    # Step 4. Signed in, display data
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    return f'<h2>Hi {spotify.me()["display_name"]}, ' \
+           f'<small><a href="/sign_out">[sign out]<a/></small></h2>' \
+           f'<a href="/playlists">my playlists</a> | ' \
+           f'<a href="/currently_playing">currently playing</a> | ' \
+		   f'<a href="/current_user">me</a>' \
 
 
-        #connect to spotify
-        code = oauth.parse_response_code(response)
-        st.write(code)
-        token_info = oauth.get_access_token(code)
-        st.write(token_info)
-        token = token_info['access_token']
-        st.write(token)
-        sp = spotipy.Spotify(auth=token)
-        st.write("connecté")
-        current_user=sp.current_user()
-        st.write(current_user)
-
-        playlist=sp.user_playlist_create(current_user['id'],name="test", public=False)
-        st.write(playlist)
-        st.write("playslist créée")
+@app.route('/sign_out')
+def sign_out():
+    try:
+        # Remove the CACHE file (.cache-test) so that a new user can authorize.
+        os.remove(session_cache_path())
+        session.clear()
+    except OSError as e:
+        print ("Error: %s - %s." % (e.filename, e.strerror))
+    return redirect('/')
 
 
-        results = sp.current_user_saved_tracks()
-        for idx, item in enumerate(results['items']):
-            track = item['track']
-            st.write(idx, track['artists'][0]['name'], " – ", track['name'])
-        
-        
-if __name__ == "__main__":
-    main()
+@app.route('/playlists')
+def playlists():
+    cache_handler = spotipy.cache_handler.CacheFileHandler(cache_path=session_cache_path())
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    return spotify.current_user_playlists()
+
+
+@app.route('/currently_playing')
+def currently_playing():
+    cache_handler = spotipy.cache_handler.CacheFileHandler(cache_path=session_cache_path())
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    track = spotify.current_user_playing_track()
+    if not track is None:
+        return track
+    return "No track currently playing."
+
+
+@app.route('/current_user')
+def current_user():
+    cache_handler = spotipy.cache_handler.CacheFileHandler(cache_path=session_cache_path())
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    return spotify.current_user()
+
+
+'''
+Following lines allow application to be run more conveniently with
+`python app.py` (Make sure you're using python3)
+(Also includes directive to leverage pythons threading capacity.)
+'''
+if __name__ == '__main__':
+    app.run(threaded=True, port=int(os.environ.get("PORT",
+                                                   os.environ.get("SPOTIPY_REDIRECT_URI", 8080).split(":")[-1])))
