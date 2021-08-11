@@ -18,16 +18,47 @@ def main():
     st.sidebar.title('Paramètres')
     st.title('Recommandations Spotify')
     username=st.sidebar.text_input("Nom d'utilisateur", value='erwan.lenagard', max_chars=None, key=None, type='default')
+    
+    scope = 'playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private streaming ugc-image-upload user-follow-modify user-follow-read user-library-read user-library-modify user-read-private user-read-birthdate user-read-email user-top-read user-read-playback-state user-modify-playback-state user-read-currently-playing user-read-recently-played'
+
+    SPOTIPY_CLIENT_ID='c35363c3c06b4a459d30b2b4da74fd19'
+    SPOTIPY_CLIENT_SECRET='eb7c7d1a84774f7b89cdfd901e2f33ec'
+    SPOTIPY_REDIRECT_URI="{}".format('https://spotifydiscovery.herokuapp.com')
+    
+    
+    #initializing spotify oauth
+    oauth = SpotifyOAuth(
+        client_id=SPOTIPY_CLIENT_ID,
+        client_secret=SPOTIPY_CLIENT_SECRET,
+        redirect_uri=SPOTIPY_REDIRECT_URI,
+        scope=scope
+        )
+    auth_url = oauth.get_authorize_url()
+    st.write(auth_url)
+    response = st.text_input('Click the link above, then copy the URL from the new tab, paste it here, and press enter: ')
+    
+    
+    
+    
+    
+    
     if st.sidebar.button('Obtenir des recommandations'):
 
-        scope = 'playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private streaming ugc-image-upload user-follow-modify user-follow-read user-library-read user-library-modify user-read-private user-read-birthdate user-read-email user-top-read user-read-playback-state user-modify-playback-state user-read-currently-playing user-read-recently-played'
 
-        SPOTIPY_CLIENT_ID='c35363c3c06b4a459d30b2b4da74fd19'
-        SPOTIPY_CLIENT_SECRET='eb7c7d1a84774f7b89cdfd901e2f33ec'
-        SPOTIPY_REDIRECT_URI="{}".format('https://spotifydiscovery.herokuapp.com')
+        #connect to spotify
+        code = oauth.parse_response_code(response)
+        token_info = oauth.get_access_token(code)
+        token = token_info['access_token']
+        sp = spotipy.Spotify(auth=token)
+        
+        
+        
+        
+        
+        
 
         print(scope)
-        sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=SPOTIPY_CLIENT_ID,client_secret=SPOTIPY_CLIENT_SECRET, redirect_uri=SPOTIPY_REDIRECT_URI, scope=scope,cache_path=".cache"))
+#         sp = spotipy.Spotify(auth_manager=SpotifyOAuth(client_id=SPOTIPY_CLIENT_ID,client_secret=SPOTIPY_CLIENT_SECRET, redirect_uri=SPOTIPY_REDIRECT_URI, scope=scope,cache_path=".cache"))
 
         playlist=sp.user_playlist_create(username,name="test", public=False)
         st.write("playslist créée")
