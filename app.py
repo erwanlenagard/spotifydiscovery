@@ -69,9 +69,10 @@ def create_playlist():
     form = NameForm()
     if form.validate_on_submit():
         name = form.name.data
-    
+        print(name)
+        f'{name}'
 #     return render_template('form.html', form=form, message=new_playlist(name))
-    return render_template('form.html', form=form, message=name)
+    return render_template('form.html', form=form, message="coucou")
 
 
 def new_playlist(name):
