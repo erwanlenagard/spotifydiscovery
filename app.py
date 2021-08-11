@@ -75,10 +75,11 @@ def create_playlist():
     form = NameForm()
     if form.validate_on_submit():
         name = form.name.data
-        playlist_info=new_playlist(name)
+        return new_playlist(name)
+        
        
 #     return render_template('form.html', form=form, message=new_playlist(name))
-    return render_template('form.html', form=form, message=playlist_info)
+    return render_template('form.html', form=form, message="coucou")
 
 
 def new_playlist(name):
@@ -89,7 +90,7 @@ def new_playlist(name):
 
     spotify = spotipy.Spotify(auth_manager=auth_manager)
     current_userid=spotify.me()["id"] 
-    playlist_info=spotify.user_playlist_create(current_userid,name=name, public=False)
+    playlist_info=spotify.user_playlist_create(current_userid,name=str(name), public=False)
     
     return playlist_info
 
