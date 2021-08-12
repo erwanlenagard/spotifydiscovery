@@ -1,7 +1,7 @@
 import os
 from flask import Flask, session, request, render_template, redirect, url_for
 from flask_session import Session
-from flask_bootstrap import Bootstrap
+# from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
@@ -13,12 +13,19 @@ from random import shuffle
 import logging
 import sys
 
+# SET CALLBACK_URL="127.0.0.1"
+# SET SPOTIPY_CLIENT_ID="c35363c3c06b4a459d30b2b4da74fd19"
+# SET SPOTIPY_CLIENT_SECRET="eb7c7d1a84774f7b89cdfd901e2f33ec"
+# SET SPOTIPY_REDIRECT_URI="127.0.0.1"
+
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.urandom(64)
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_FILE_DIR'] = './.flask_session/'
 Session(app)
-Bootstrap(app)
+# Bootstrap(app)
+
+
 
 app.logger.addHandler(logging.StreamHandler(sys.stdout))
 app.logger.setLevel(logging.ERROR)
@@ -208,5 +215,6 @@ Following lines allow application to be run more conveniently with
 (Also includes directive to leverage pythons threading capacity.)
 '''
 if __name__ == '__main__':
-    app.run(threaded=True, port=int(os.environ.get("PORT",
-                                                   os.environ.get("SPOTIPY_REDIRECT_URI", 8080).split(":")[-1])))
+    app.run(threaded=True, port=int(os.environ.get("PORT", os.environ.get("SPOTIPY_REDIRECT_URI", 8080).split(":")[-1])))
+#     app.run(threaded=True, port=int(os.environ.get("PORT",
+#                                                    os.environ.get("SPOTIPY_REDIRECT_URI", 5000).split(":")[-1])))
