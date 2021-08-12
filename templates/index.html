@@ -12,25 +12,48 @@
     <link href="pricing.css" rel="stylesheet">
   </head>
 
-  <body style="background-color: rgb(237, 237, 237);">
-
-    <div class="d-flex flex-column flex-md-row align-items-center p-3 px-md-4 mb-3 bg-white border-bottom box-shadow" style="color: rgb(255, 255, 255); background-color: rgb(59, 59, 59);">
-<!--       <h5 class="my-0 mr-md-auto font-weight-normal" style="color: rgb(28, 28, 28);">Spotify Discovery</h5> -->
-      <nav class="my-2 my-md-0 mr-md-3">
-         <li class="nav-item"><a class="navbar-brand" href="#">Spotify Discovery</a></li>
-          <li class="nav-item"><a class="p-2 text-dark" href="#">Créer une playlist</a></li>
-        <li class="nav-item"><a class="p-2 text-dark" href="/playlists">Mes playlists</a></li>
-        
-        <li class="nav-item"><a class="p-2 text-dark" href="/current_user">Mon profil</a></li>
-          <li class="nav-item"><a class="btn btn-outline-primary" href="/sign_out" style="background-color: rgb(203, 45, 111);">Logout</a></li>
-      </nav>
-        
+  <body style="background-color: rgb(0, 0, 0);">
+      
+      
+<div class="align-items-center bg-white border-bottom box-shadow" style="color: rgb(255, 255, 255); background-color: rgb(59, 59, 59);color:black;">      
+    
+        <!-- NAVBAR
+    ================================================== --> 
+    
+ <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="d-flex flex-grow-1">
+        <span class="w-100 d-lg-none d-block"><!-- hidden spacer to center brand on mobile --></span>
+        <a class="navbar-brand d-none d-lg-inline-block" href="/">
+           Spotify Discovery
+        </a>
     </div>
+    <div class="collapse navbar-collapse flex-grow-1 text-right" id="myNavbar">
+        <ul class="navbar-nav ml-auto flex-nowrap">
+            <li class="nav-item">
+                <a href="/create_playlist" class="nav-link m-2 menu-item nav-active">Créer une playlist</a>
+            </li>
+            <li class="nav-item">
+                <a href="/playlist" class="nav-link m-2 menu-item">Mes playlists</a>
+            </li>
+            <li class="nav-item">
+                <a href="/current_user" class="nav-link m-2 menu-item">Mon profil</a>
+            </li>
+            <li class="nav-item">
+                <a href="/logout" class="nav-link m-2 menu-item">Se déconnecter</a>
+            </li>
+        </ul>
+    </div>
+</nav>
 
-    <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-      <h1 class="display-4">Bienvenue {{me}}</h1>
-      <p class="lead">Découvrez de nouveaux artistes qui correspondent à vos goûts. Créez une playlist des meilleurs morceaux d'artistes similaires à vos groupes et chanteurs préférés.</p>
-    <button type="button" class="btn btn-lg btn-info" style="position: static; text-align: center;" href="/create_playlist">Créer une playlist</button></div>
+ </div>     
+      
+    <!-- CONTENU
+    ================================================== --> 
+
+    <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center bg-image" style="background-image:  url('./img/img3.jpg'); height: 91vh; opacity: 1;background-size: cover;color: white;">
+        <h1 class="display-4">Bienvenue {{me}}</h1>
+      <p class="lead center">Découvrez de nouveaux morceaux qui correspondent à vos goûts. Créez une playlist d'artistes similaires à vos groupes et chanteurs préférés.</p>
+    <a href="/create_playlist"><button type="button" class="btn btn-lg" style="position: static; text-align: center; background-color:#14a098;color:white;" href="/create_playlist">Créer une playlist</button></a></div>
 
     <div class="container-fluid" style="float: none; top: 0px; display: inline; position: relative; left: 0px;">
       
@@ -42,8 +65,7 @@
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-      
-          <!-- Bootstrap core CSS -->
+      <!-- Bootstrap core CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-eMNCOe7tC1doHpGoWe/6oMVemdAVTMs2xqW4mwXrXsW0L84Iytr2wi5v2QjrP/xp" crossorigin="anonymous"></script>
