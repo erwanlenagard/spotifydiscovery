@@ -76,19 +76,19 @@ def create_playlist():
         
     spotify = spotipy.Spotify(auth_manager=auth_manager)
     
-    myform = NameForm()
-    if myform.validate_on_submit():
-        name = myform.name.data
-# #         return new_playlist(name)
-#         current_userid=spotify.me()["id"] 
-#         playlist_info=spotify.user_playlist_create(current_userid,name=str(name), public=False)
-#         tracks=get_recos(name)
-#         track_chunks=chunks(tracks,100)
-#         for chunk in track_chunks:
-#             spotify.user_playlist_add_tracks(current_userid, playlist_info['id'], chunk)
-#         return render_template('success.html', name=str(name), info_artiste="coucou")     
+    form = NameForm()
+    if form.validate_on_submit():
+        name = form.name.data
+#         return new_playlist(name)
+        current_userid=spotify.me()["id"] 
+        playlist_info=spotify.user_playlist_create(current_userid,name=str(name), public=False)
+        tracks=get_recos(name)
+        track_chunks=chunks(tracks,100)
+        for chunk in track_chunks:
+            spotify.user_playlist_add_tracks(current_userid, playlist_info['id'], chunk)
+        return render_template('success.html', name=str(name), info_artiste="coucou")     
         
-    return render_template('form.html', form=myform)
+    return render_template('form.html', form=form)
 
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst."""
