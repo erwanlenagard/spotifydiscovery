@@ -1,19 +1,51 @@
-{% extends 'bootstrap/base.html' %}
-{% import "bootstrap/wtf.html" as wtf %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="icon" href="../../../../favicon.ico">
 
-{% block styles %}
-{{ super() }}
-    <style>
-        body { background: #e1e1e1; }
-    </style>
-{% endblock %}
+    <title>Spotify discovery - Créer une playlist</title>
 
+    <!-- Custom styles for this template -->
+    <link href="pricing.css" rel="stylesheet">
+  </head>
 
-{% block title %}
-Succès
-{% endblock %}
+  <body style="background-color: rgb(0, 0, 0);">
+      
+      
+<div class="align-items-center bg-white border-bottom box-shadow" style="color: rgb(255, 255, 255); background-color: rgb(59, 59, 59);color:black;">      
+    
+        <!-- NAVBAR
+    ================================================== --> 
+    
+ <nav class="navbar navbar-expand-lg navbar-light bg-light">
+    <div class="d-flex flex-grow-1">
+        <span class="w-100 d-lg-none d-block"><!-- hidden spacer to center brand on mobile --></span>
+        <a class="navbar-brand d-none d-lg-inline-block" href="/">
+           Spotify Discovery
+        </a>
+    </div>
+    <div class="collapse navbar-collapse flex-grow-1 text-right" id="myNavbar">
+        <ul class="navbar-nav ml-auto flex-nowrap">
+            <li class="nav-item">
+                <a href="/create_playlist" class="nav-link m-2 menu-item nav-active">Créer une playlist</a>
+            </li>
+            <li class="nav-item">
+                <a href="/playlist" class="nav-link m-2 menu-item">Mes playlists</a>
+            </li>
+            <li class="nav-item">
+                <a href="/current_user" class="nav-link m-2 menu-item">Mon profil</a>
+            </li>
+            <li class="nav-item">
+                <a href="/logout" class="nav-link m-2 menu-item">Se déconnecter</a>
+            </li>
+        </ul>
+    </div>
+</nav>
 
-{% block content %}
 
 <div class="container">
   <div class="row">
@@ -21,7 +53,7 @@ Succès
 
       <h1 class="pt-5 pb-2">La playlist a été généré pour {{name}}</h1>
 
-      <p class="lead">voici les infos de l'artiste</p>
+      <p class="lead">Voici les infos de l'artiste</p>
 
       {{info_artiste}}
 
@@ -30,4 +62,29 @@ Succès
   </div>
 </div>
 
-{% endblock %}
+
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+      <!-- Bootstrap core CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KyZXEAg3QhqLMpG8r+8fhAXLRk2vvoC2f3B09zVXn8CA5QIVfZOJ3BCsw2P0p/We" crossorigin="anonymous">
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-U1DAWAznBHeqEIlVSCgzq+c9gqGAJn5c/t99JyeKa9xxaYpSvHU5awsuZVVFIhvj" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.3/dist/umd/popper.min.js" integrity="sha384-eMNCOe7tC1doHpGoWe/6oMVemdAVTMs2xqW4mwXrXsW0L84Iytr2wi5v2QjrP/xp" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.0/dist/js/bootstrap.min.js" integrity="sha384-cn7l7gDp0eyniUwwAZgrzD06kc/tftFf19TOAs2zVinnD/C7E91j9yyk5//jjpt/" crossorigin="anonymous"></script>
+    <link href="../../css/editor.css" rel="stylesheet">
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+<!--     <script src="../../js/vendor/popper.min.js"></script>
+    <script src="../../js/bootstrap.min.js"></script> -->
+    <script src="https://cdn.jsdelivr.net/npm/holderjs@2.9.4/holder.js"></script>
+    <script>
+      Holder.addTheme('thumb', {
+        bg: '#55595c',
+        fg: '#eceeef',
+        text: 'Thumbnail'
+      });
+    </script>
+  
+
+</body>
+</html>
