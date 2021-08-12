@@ -65,12 +65,7 @@ def index():
     # Step 4. Signed in, display data
     spotify = spotipy.Spotify(auth_manager=auth_manager)
     return render_template('index.html', me=spotify.me()["display_name"])
-#     return f'<h2>Hi {spotify.me()["display_name"]}, ' \
-#            f'<small><a href="/sign_out">[sign out]<a/></small></h2>' \
-#            f'<a href="/create_playlist">create_playlist</a> | ' \
-#            f'<a href="/playlists">my playlists</a> | ' \
-#            f'<a href="/currently_playing">currently playing</a> | ' \
-#            f'<a href="/current_user">me</a>' \
+
 
 
 @app.route('/create_playlist', methods=['GET', 'POST'])
@@ -79,7 +74,7 @@ def create_playlist():
     auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
     if not auth_manager.validate_token(cache_handler.get_cached_token()):
         return redirect('/')
-
+        
     spotify = spotipy.Spotify(auth_manager=auth_manager)
     
     myform = NameForm()
