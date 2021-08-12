@@ -1,7 +1,7 @@
 import os
 from flask import Flask, session, request, render_template, redirect, url_for
 from flask_session import Session
-# from flask_bootstrap import Bootstrap
+from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
 from wtforms import StringField, SubmitField
 from wtforms.validators import DataRequired
@@ -23,7 +23,7 @@ app.config['SECRET_KEY'] = os.urandom(64)
 app.config['SESSION_TYPE'] = 'filesystem'
 app.config['SESSION_FILE_DIR'] = './.flask_session/'
 Session(app)
-# Bootstrap(app)
+Bootstrap(app)
 
 
 
@@ -82,9 +82,9 @@ def create_playlist():
 
     spotify = spotipy.Spotify(auth_manager=auth_manager)
     
-    form = NameForm()
-    if form.validate_on_submit():
-        name = form.name.data
+    myform = NameForm()
+    if myform.validate_on_submit():
+        name = myform.name.data
 #         return new_playlist(name)
         current_userid=spotify.me()["id"] 
         playlist_info=spotify.user_playlist_create(current_userid,name=str(name), public=False)
@@ -92,10 +92,9 @@ def create_playlist():
         track_chunks=chunks(tracks,100)
         for chunk in track_chunks:
             spotify.user_playlist_add_tracks(current_userid, playlist_info['id'], chunk)
-        return render_template('success.html', name=str(name), info_artiste="coucou")
+        return render_template('success.html', name=str(name), info_artiste="coucou")     
         
-        
-    return render_template('form.html', form=form)
+    return render_template('form.html', form=myform)
 
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst."""
