@@ -58,8 +58,8 @@ def index():
     if not auth_manager.validate_token(cache_handler.get_cached_token()):
         # Step 2. Display sign in link when no token
         auth_url = auth_manager.get_authorize_url()
-        return f'<a href="{auth_url}">Sign in</a>'
-#         return render_template('signin.html', auth_url=auth_url)
+#         return f'<a href="{auth_url}">Sign in</a>'
+        return render_template('login_page.html', auth_url=auth_url)
 
     # Step 4. Signed in, display data
     spotify = spotipy.Spotify(auth_manager=auth_manager)
@@ -88,7 +88,7 @@ def create_playlist():
             spotify.user_playlist_add_tracks(current_userid, playlist_info['id'], chunk)
         return render_template('success.html', name=str(name), info_artiste="coucou")     
         
-    return render_template('form.html', form=form)
+    return render_template('form_create_playlist.html', form=form)
 
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst."""
