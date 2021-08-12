@@ -17,53 +17,42 @@
   </head>
 
   <body style="background-color: rgb(59, 59, 59);">
+      <div class="align-items-center bg-white border-bottom box-shadow" style="color: rgb(255, 255, 255); background-color: rgb(59, 59, 59);color:black;">
+          <nav class="navbar navbar-expand-lg navbar-light bg-light">
+          <div class="d-flex flex-grow-1">
+                <span class="w-100 d-lg-none d-block"><!-- hidden spacer to center brand on mobile --></span>
+                <a class="navbar-brand d-none d-lg-inline-block" href="/">
+                   Spotify Discovery
+                </a>
+          </div>
+        <div class="collapse navbar-collapse flex-grow-1 text-right" id="myNavbar">
+            <ul class="navbar-nav ml-auto flex-nowrap">
+                <li class="nav-item">
+                    <a href="/create_playlist" class="nav-link m-2 menu-item nav-active">Créer une playlist</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/playlists" class="nav-link m-2 menu-item">Mes playlists</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/current_user" class="nav-link m-2 menu-item">Mon profil</a>
+                </li>
+                <li class="nav-item">
+                    <a href="/sign_out" class="nav-link m-2 menu-item">Se déconnecter</a>
+                </li>
+            </ul>
+        </div>
+        </nav>
+      </div>
       
-      
-<div class="align-items-center bg-white border-bottom box-shadow" style="color: rgb(255, 255, 255); background-color: rgb(59, 59, 59);color:black;">      
-    
-        <!-- NAVBAR
-    ================================================== --> 
-    
- <nav class="navbar navbar-expand-lg navbar-light bg-light">
-    <div class="d-flex flex-grow-1">
-        <span class="w-100 d-lg-none d-block"><!-- hidden spacer to center brand on mobile --></span>
-        <a class="navbar-brand d-none d-lg-inline-block" href="/">
-           Spotify Discovery
-        </a>
-    </div>
-    <div class="collapse navbar-collapse flex-grow-1 text-right" id="myNavbar">
-        <ul class="navbar-nav ml-auto flex-nowrap">
-            <li class="nav-item">
-                <a href="/create_playlist" class="nav-link m-2 menu-item nav-active">Créer une playlist</a>
-            </li>
-            <li class="nav-item">
-                <a href="/playlists" class="nav-link m-2 menu-item">Mes playlists</a>
-            </li>
-            <li class="nav-item">
-                <a href="/current_user" class="nav-link m-2 menu-item">Mon profil</a>
-            </li>
-            <li class="nav-item">
-                <a href="/logout" class="nav-link m-2 menu-item">Se déconnecter</a>
-            </li>
-        </ul>
-    </div>
-</nav>
-
-
-      
-<div  class="align-items-center bg-white border-bottom box-shadow" >
-  <div class="row">
-    <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
-
-      <h1 class="pt-5 pb-2">Nouvelle playlist</h1>
-
-      <p class="lead">Entrez le nom d'un artiste pour générer une playlist.</p>
-
-      {{ wtf.quick_form(form) }}
-
-    </div>
-  </div>
-</div>
+      <div class="align-items-center bg-white border-bottom box-shadow" >
+          <div class="row">
+              <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
+                  <h1 class="pt-5 pb-2">Nouvelle playlist</h1>
+                  <p class="lead">Entrez le nom d'un artiste pour générer une playlist.</p>
+                  {{ wtf.quick_form(form) }}
+              </div>
+          </div>
+      </div>
 
 
     <!-- Bootstrap core JavaScript
