@@ -25,8 +25,6 @@ app.config['SESSION_FILE_DIR'] = './.flask_session/'
 Session(app)
 Bootstrap(app)
 
-
-
 app.logger.addHandler(logging.StreamHandler(sys.stdout))
 app.logger.setLevel(logging.ERROR)
 
@@ -60,7 +58,8 @@ def index():
     if not auth_manager.validate_token(cache_handler.get_cached_token()):
         # Step 2. Display sign in link when no token
         auth_url = auth_manager.get_authorize_url()
-        return render_template('signin.html', auth_url=auth_url)
+        return f'<a href="{auth_url}">Sign in</a>'
+#         return render_template('signin.html', auth_url=auth_url)
 
     # Step 4. Signed in, display data
     spotify = spotipy.Spotify(auth_manager=auth_manager)
