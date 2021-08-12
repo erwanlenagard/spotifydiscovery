@@ -1,0 +1,42 @@
+{% extends 'bootstrap/base.html' %}
+{% import "bootstrap/wtf.html" as wtf %}
+
+{% block styles %}
+{{ super() }}
+    <style>
+        body { background: #e1e1e1; }
+    </style>
+{% endblock %}
+
+
+{% block title %}
+Succès
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+  <div class="row">
+    <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
+
+      <h1 class="pt-5 pb-2">Bonjour {{me}}</h1>
+
+      <a href="/create_playlist"><button type="button" class="btn btn-success btn-round-lg btn-xl">Créer une playlist</button></a>
+
+
+
+    </div>
+  </div>
+</div>
+
+{% endblock %}
+
+
+
+
+<!-- f'<h2>Hi {spotify.me()["display_name"]}, ' \
+#            f'<small><a href="/sign_out">[sign out]<a/></small></h2>' \
+#            f'<a href="/create_playlist">create_playlist</a> | ' \
+#            f'<a href="/playlists">my playlists</a> | ' \
+#            f'<a href="/currently_playing">currently playing</a> | ' \
+#            f'<a href="/current_user">me</a>' \ -->

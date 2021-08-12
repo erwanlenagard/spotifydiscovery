@@ -43,9 +43,7 @@ def index():
         session['uuid'] = str(uuid.uuid4())
 
     cache_handler = spotipy.cache_handler.CacheFileHandler(cache_path=session_cache_path())
-    auth_manager = spotipy.oauth2.SpotifyOAuth(scope='playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private streaming ugc-image-upload user-follow-modify user-follow-read user-library-read user-library-modify user-read-private user-read-birthdate user-read-email user-top-read user-read-playback-state user-modify-playback-state user-read-currently-playing user-read-recently-played',
-                                                cache_handler=cache_handler, 
-                                                show_dialog=True)
+    auth_manager = spotipy.oauth2.SpotifyOAuth(scope='playlist-read-private playlist-read-collaborative playlist-modify-public playlist-modify-private streaming ugc-image-upload user-follow-modify user-follow-read user-library-read user-library-modify user-read-private user-read-birthdate user-read-email user-top-read user-read-playback-state user-modify-playback-state user-read-currently-playing user-read-recently-played',cache_handler=cache_handler, show_dialog=True)
 
     if request.args.get("code"):
         # Step 3. Being redirected from Spotify auth page
@@ -59,12 +57,13 @@ def index():
 
     # Step 4. Signed in, display data
     spotify = spotipy.Spotify(auth_manager=auth_manager)
-    return f'<h2>Hi {spotify.me()["display_name"]}, ' \
-           f'<small><a href="/sign_out">[sign out]<a/></small></h2>' \
-           f'<a href="/create_playlist">create_playlist</a> | ' \
-           f'<a href="/playlists">my playlists</a> | ' \
-           f'<a href="/currently_playing">currently playing</a> | ' \
-           f'<a href="/current_user">me</a>' \
+    return render_template('index.html', me=spotify.me()["display_name"])
+#     return f'<h2>Hi {spotify.me()["display_name"]}, ' \
+#            f'<small><a href="/sign_out">[sign out]<a/></small></h2>' \
+#            f'<a href="/create_playlist">create_playlist</a> | ' \
+#            f'<a href="/playlists">my playlists</a> | ' \
+#            f'<a href="/currently_playing">currently playing</a> | ' \
+#            f'<a href="/current_user">me</a>' \
 
 
 @app.route('/create_playlist', methods=['GET', 'POST'])
