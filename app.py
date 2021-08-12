@@ -95,7 +95,7 @@ def create_playlist():
         return render_template('success.html', name=str(name), info_artiste="coucou")
         
         
-    return render_template('form.html', form=form, message="coucou")
+    return render_template('form.html', form=form)
 
 def chunks(lst, n):
     """Yield successive n-sized chunks from lst."""
