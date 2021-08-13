@@ -35,6 +35,9 @@
                 <a href="/create_playlist" class="nav-link m-2 menu-item nav-active">Créer une playlist</a>
             </li>
             <li class="nav-item">
+                <a href="/create_genre_playlist" class="nav-link m-2 menu-item nav-active">Créer une playlist par genre</a>
+            </li>
+            <li class="nav-item">
                 <a href="/playlists" class="nav-link m-2 menu-item">Mes playlists</a>
             </li>
             <li class="nav-item">
@@ -48,18 +51,13 @@
 </nav>
 
 
-<div class="container">
+<div class="align-items-center bg-dark" style="height: 90vh;color:white;">
   <div class="row">
     <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
-
-      <h1 class="pt-5 pb-2">La playlist a été généré pour {{name}}</h1>
-
-      <p class="lead">Voici les infos de l'artiste</p>
-
-      {{info_artiste}}
-
-
-    </div>
+        <h1 class="pt-5 pb-2">La playlist a été généré pour {{name}}</h1>
+        <p>Retrouvez cette playlist directement sur votre compte Spotify.</p>
+        <iframe src={{playlist_id}} width="100%" height="380" frameBorder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+      </div>
   </div>
 </div>
 

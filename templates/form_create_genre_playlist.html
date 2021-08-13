@@ -39,13 +39,29 @@
           <div class="row">
               <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
                   <h1 class="pt-5 pb-2">Nouvelle playlist</h1>
-                  <p class="lead">Entrez le nom d'un artiste pour générer une playlist.Vous pouvez essayer avec l'un de vos groupes préférés : {{artists_names}}</p>
-                  
+                  <p class="lead">Sélectionnez un genre musical pour générer une playlist</p>
+                                
                   
                   <form class="form-inline"  method="POST">
                       {{ form.hidden_tag() }}
                       <div class="form-group">
-                        {{ form.name.label }} {{ form.name(class="form-control") }}
+                          {{ form.name.label(class="form-control-label")}}
+                        <select class="form-control" id="continent_selector" name="name">
+                        {% for choice in form.name.choices %}
+                            <option value="{{ choice[1] }}">{{ choice[0] }}</option>
+                        {% endfor %}
+                      </select>
+                          
+                          
+                          
+                          
+<!--                         {{ form.name.label }} {{form.name}} -->
+                      </div><br/>
+                      <div class="form-group">
+                          {{ form.nb_recos.label }} - 10 {{ form.nb_recos(min=10, max=100, oninput="outputUpdate(value)") }} 100
+                      </div><br/>
+                      <div class="form-group">
+                          {{ form.popularity.label }} - 0 {{ form.popularity(min=0, max=100, oninput="outputUpdate(value)") }} 100
                       </div><br/>
                       <div class="form-group">
                           {{ form.danceability.label }} - 0 {{ form.danceability(min=0, max=100, oninput="outputUpdate(value)") }} 100
