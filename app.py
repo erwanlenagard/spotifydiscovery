@@ -70,8 +70,7 @@ class GenreForm(FlaskForm):
     
     submit = SubmitField('Créer la playlist')    
     
-    
-
+   
     
 
 @app.route('/')
@@ -98,6 +97,8 @@ def index():
     spotify = spotipy.Spotify(auth_manager=auth_manager)
 #     return f'<p>pas bien</p>'
     return render_template('index.html', me=spotify.me()["display_name"])
+
+
 
 def get_user_top_artists(limit,offset,time_range):
     cache_handler = spotipy.cache_handler.CacheFileHandler(cache_path=session_cache_path())
@@ -185,37 +186,7 @@ def create_genre_playlist():
     
         
     return render_template('form_create_genre_playlist.html', form=form,available_genres=available_genres)
-#     if form.validate():
-#     elif request.method == 'POST':
-#         name = form.name.data
-#         nb_recos=form.nb_recos.data 
-#         print(name, file=sys.stdout)
-
-#         return render_template('test.html',val=name,val2=nb_recos)
-       
-#         nb_recos=form.nb_recos.data 
-#         popularity=form.popularity.data 
-#         danceability=round(form.danceability.data /100,1)
-#         energy=round(form.energy.data /100,1)
-#         valence=round(form.valence.data /100,1)
-#         tempo=round(form.tempo.data /100,1)
-#         speechiness=round(form.speechiness.data /100,1)
-#         acousticness=round(form.acousticness.data /100,1)
-#         instrumentalness=round(form.instrumentalness.data /100,1)
-#         liveness=round(form.liveness.data /100,1)
-
-#         current_userid=spotify.me()["id"] 
-#         playlist_info=spotify.user_playlist_create(current_userid,name="test", public=False)
-#         tracks=get_recos_genre(name,nb_recos,popularity,danceability,energy,valence,tempo,speechiness,acousticness,instrumentalness,liveness)
-#         track_chunks=chunks(tracks,100)
-#         for chunk in track_chunks:
-#             spotify.user_playlist_add_tracks(current_userid, playlist_info['id'], chunk)
-# #         return f'<p>Coucou</p>'
-#         return render_template('success.html', name=str(name), playlist_id="https://open.spotify.com/embed/playlist/"+str(playlist_info['id'])) 
-#     elif request.method == 'GET':
-#         return render_template('form_create_genre_playlist.html', form=form,available_genres=available_genres)    
-    
-
+  
 
 
 def chunks(lst, n):
@@ -249,24 +220,28 @@ def get_recos(name,danceability,energy,valence,tempo,speechiness,acousticness,in
                                      target_danceability=danceability, target_energy=energy, target_valence=valence, target_tempo=tempo,
                                      target_speechiness=speechiness, target_acousticness=acousticness,
                                      target_instrumentalness=instrumentalness, target_liveness=liveness)
+        
+        
         for trackreco in reco['tracks'] :
-            artist_ids.append(trackreco['artists'][0]['id'])
-#             trackreco_id=["spotify:track:" + trackreco['id']]
-            trackreco_id=trackreco['id']
-            print(trackreco_id)
-            final_top_track.append(trackreco_id)
+            if trackreco['artists'][0]['id'] != artistid :
+                artist_ids.append(trackreco['artists'][0]['id'])
+    #             trackreco_id=["spotify:track:" + trackreco['id']]
+                trackreco_id=trackreco['id']
+                print(trackreco_id)
+                final_top_track.append(trackreco_id)
 
         #pour chaque artiste lié, on récupère ses 10 tops tracks
         result=spotify.artist_top_tracks(artistrelated_id, country='FR')
+
         for toptrack in result['tracks']:
-            trackid=toptrack['id']
-#             trackid=["spotify:track:" + toptrack['id']]
-            final_top_track.append(trackid)
-    print(final_top_track)
+            if toptrack['artists'][0]['id'] != artistid :
+                trackid=toptrack['id']
+    #             trackid=["spotify:track:" + toptrack['id']]
+                final_top_track.append(trackid)
             
     l_top_track=list(set(final_top_track))
     shuffle(l_top_track)
-    return final_top_track
+    return l_top_track
 
  
 def get_recommendation_genres():
@@ -309,7 +284,7 @@ def get_recos_genre(name,nb_recos,popularity,danceability,energy,valence,tempo,s
             
     l_top_track=list(set(final_top_track))
     shuffle(l_top_track)
-    return final_top_track    
+    return l_top_track    
     
 
 def new_playlist(name):
@@ -323,6 +298,204 @@ def new_playlist(name):
     playlist_info=spotify.user_playlist_create(current_userid,name=str(name), public=False)
     
     return playlist_info
+
+
+def parsing_top_artists(top_artist):
+    img_urls=[]
+    artist_names=[]
+    artist_popularity=[]
+    artist_followers=[]
+    artist_genres=[]
+    artist_href=[]
+    artist_ids=[]
+    chunked_img_urls=[]
+    chunked_artist_names=[]
+    chunked_artist_popularity=[]
+    chunked_artist_followers=[]
+    chunked_artist_genres=[]
+    chunked_artist_href=[]
+    for i, item in enumerate(top_artist['items']):
+        img_urls.append(item['images'][0]['url'])
+        artist_ids.append(item['id'])
+        artist_names.append(item['name'])
+        artist_popularity.append(str(item['popularity']))
+        artist_followers.append(item['followers']['total'])
+        artist_genres.append(item['genres'])
+        artist_href.append(item['external_urls']['spotify'])
+    
+    chunked_img_urls=list(chunks(img_urls, 10))
+    chunked_artist_ids=list(chunks(artist_ids, 10))
+    chunked_artist_names=list(chunks(artist_names, 10))
+    chunked_artist_popularity=list(chunks(artist_popularity, 10))
+    chunked_artist_followers=list(chunks(artist_followers, 10))
+    chunked_artist_genres=list(chunks(artist_genres, 10))
+    chunked_artist_href=list(chunks(artist_href, 10))
+    return chunked_img_urls, chunked_artist_ids, chunked_artist_names, chunked_artist_popularity, chunked_artist_followers, chunked_artist_genres, chunked_artist_href
+
+
+
+@app.route('/top_artists/<term>/<limite>', methods=['GET', 'POST'])
+def top_artists(term='medium-term',limite=30):
+    cache_handler = spotipy.cache_handler.CacheFileHandler(cache_path=session_cache_path())
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+        
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    
+    top_artist=spotify.current_user_top_artists(limit=limite,offset=0, time_range=term)
+    
+    chunked_img_urls, chunked_artist_ids, chunked_artist_names, chunked_artist_popularity, chunked_artist_followers, chunked_artist_genres, chunked_artist_href = parsing_top_artists(top_artist)
+    
+    return render_template('user_top_artists.html', limite=int(round((int(limite)/3),0)), id_artist=chunked_artist_ids,img= chunked_img_urls, names=chunked_artist_names, popularity=chunked_artist_popularity,
+                          followers=chunked_artist_followers, genres=chunked_artist_genres, href=chunked_artist_href)
+
+
+
+@app.route('/top_tracks/<term>/<limite>', methods=['GET', 'POST'])
+def top_tracks(term='medium-term',limite=30):
+    cache_handler = spotipy.cache_handler.CacheFileHandler(cache_path=session_cache_path())
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+        
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    
+
+    top_tracks=spotify.current_user_top_tracks(limit=limite,offset=0, time_range=term)
+    
+    img_urls,artist_names,track_ids,track_popularity,track_href,album_href,artist_href,album_name,track_name = parsing_top_tracks(top_tracks)
+    
+    return render_template('user_top_tracks.html', limite=int(round((int(limite)/3),0)), img_urls=img_urls, artist_names=artist_names, track_ids=track_ids, track_popularity = track_popularity, track_href=track_href, album_href=album_href, artist_href=artist_href, album_name=album_name,track_name=track_name)
+
+
+
+def parsing_top_tracks(top_tracks):
+    img_urls=[]
+    artist_names=[]
+    track_ids=[]
+    track_popularity=[]
+    track_href=[]
+    album_href=[]
+    artist_href=[]
+    album_name=[]
+    track_name=[]
+    
+    chunked_img_urls=[]
+    chunked_artist_names=[]
+    chunked_track_ids=[]
+    chunked_track_popularity=[]
+    chunked_track_href=[]
+    chunked_album_href=[]
+    chunked_artist_href=[]
+    chunked_album_name=[]
+    chunked_track_name=[]
+    
+    for i, item in enumerate(top_tracks['items']):
+        img_urls.append(item['album']['images'][0]['url'])
+        artist_names.append(item['artists'][0]['name'])
+        track_ids.append(item['id'])
+        track_popularity.append(str(item['popularity']))
+        track_href.append(item['external_urls']['spotify'])
+        album_href.append(item['album']['external_urls']['spotify'])
+        artist_href.append(item['artists'][0]['external_urls']['spotify'])
+        album_name.append(item['album']['name'])
+        track_name.append(item['name'])
+                          
+    
+    chunked_img_urls=list(chunks(img_urls, 10))
+    chunked_artist_names=list(chunks(artist_names, 10))
+    chunked_track_ids=list(chunks(track_ids, 10))
+    chunked_track_popularity=list(chunks(track_popularity, 10))
+    chunked_track_href=list(chunks(track_href, 10))
+    chunked_album_href=list(chunks(album_href, 10))
+    chunked_artist_href=list(chunks(artist_href, 10))
+    chunked_album_name=list(chunks(album_name, 10))
+    chunked_track_name=list(chunks(track_name, 10))
+    return chunked_img_urls,chunked_artist_names,chunked_track_ids,chunked_track_popularity,chunked_track_href,chunked_album_href,chunked_artist_href,chunked_album_name,chunked_track_name
+
+
+
+
+
+@app.route('/get_recos/<type_reco>/<spotify_id>')
+def create_playlist_basic_recos(type_reco,spotify_id):
+    cache_handler = spotipy.cache_handler.CacheFileHandler(cache_path=session_cache_path())
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    current_userid=spotify.me()["id"]
+    
+    if type_reco=='artist':
+        info=spotify.artist(spotify_id)
+    elif type_reco=='track':
+        info=spotify.track(spotify_id)
+    
+    tracks=get_basic_recos(type_reco,spotify_id)
+    
+    playlist_info=spotify.user_playlist_create(current_userid,name=str(info['name']), public=False)
+    
+    track_chunks=chunks(tracks,100)
+    for chunk in track_chunks:
+        spotify.user_playlist_add_tracks(current_userid, playlist_info['id'], chunk)        
+    
+    return render_template('success.html', name=str(info['name']), 
+                           playlist_id="https://open.spotify.com/embed/playlist/"+str(playlist_info['id']))
+
+
+
+def get_basic_recos(type_reco,spotify_id):
+    cache_handler = spotipy.cache_handler.CacheFileHandler(cache_path=session_cache_path())
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    
+    final_top_track=[]
+    artist_ids=[]
+    if type_reco=='artist':
+        # on cherche les artistes associés 
+        related = spotify.artist_related_artists(spotify_id)
+        for artistrelated in related['artists']:       
+            artistrelated_id = artistrelated['id']
+            artistrelated_uri=artistrelated['uri']
+            artist_ids.append(artistrelated_id)
+
+            #Pour chaque artiste lié on récupère un nombre de chanson recommandées (pas forcément de cet artiste)
+            reco=spotify.recommendations(market='fr', seed_artists=[artistrelated_uri], limit=10)
+
+            for trackreco in reco['tracks'] :
+                if trackreco['artists'][0]['id'] != spotify_id :
+                    artist_ids.append(trackreco['artists'][0]['id'])
+                    trackreco_id=trackreco['id']
+                    print(trackreco_id)
+                    final_top_track.append(trackreco_id)
+
+            #pour chaque artiste lié, on récupère ses 10 tops tracks
+            result=spotify.artist_top_tracks(artistrelated_id, country='FR')
+
+            for toptrack in result['tracks']:
+                if toptrack['artists'][0]['id'] != spotify_id :
+                    trackid=toptrack['id']
+                    final_top_track.append(trackid)
+            
+    elif type_reco=='track':
+        reco=spotify.recommendations(market='fr', seed_tracks=[spotify_id], limit=50)
+
+        for trackreco in reco['tracks'] :
+            artist_ids.append(trackreco['artists'][0]['id'])
+            trackreco_id=trackreco['id']
+            print(trackreco_id)
+            final_top_track.append(trackreco_id)
+
+        
+            
+    l_top_track=list(set(final_top_track))
+    shuffle(l_top_track)
+    return l_top_track
+
 
 
 @app.route('/sign_out')
