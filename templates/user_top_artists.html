@@ -1,0 +1,73 @@
+{% extends 'base.html' %} 
+{% block title %}Mes artistes favoris{% endblock %}
+{% block content %} 
+
+
+
+
+<div class="container text-center px-3 py-3 pt-md-5 pb-md-4 mx-auto" style="color:white;">
+    <div class="row align-items-start">
+        <h1 class="display-4">Mes artistes favoris</h1>
+    </div>
+    <div class="row px-3">
+    </div>
+    <div class="row"class="justify-content-center bg-dark  px-3 py-3 pt-md-5 pb-md-4 mx-auto">
+        <div class="btn-group" role="group" aria-label="Basic outlined example">
+            <div class="col-md-12">
+              <a href="/top_artists/short_term/30"><button type="button" class="btn btn-md btn-light btn-outline-secondary px-2">Ce mois-ci...</button></a>
+              <a href="/top_artists/medium_term/30"><button type="button" class="btn btn-md btn-light btn-outline-secondary px-2">Ces 6 derniers mois...</button></a>
+              <a href="/top_artists/long_term/30"><button type="button" class="btn btn-md btn-light btn-outline-secondary px-2">Depuis des années...</button></a>
+            </div>
+
+        </div>
+    </div>
+  
+        
+    <div style="margin:10px;">
+    </div>    
+    
+
+    <div class="row align-items-start">
+        <div class="col-sm">
+          {%for i in range(0,limite) %}
+            <div class="card bg-light text-dark" style="width: 18rem;">
+                <a href="{{href[0][i]}}" target="_blank"><img class="card-img-top" src="{{img[0][i]}}" alt="{{names[0][i]}}"></a>
+                <div class="card-body">
+                    <h5 class="card-title">{{names[0][i]}}</h5>
+                    <p class="card-text">Popularité : {{popularity[0][i]}}<br/>{{followers[0][i]}} Followers<br/>{{genres[0][i][0]}}</p>
+                    <a href="{{href[0][i]}}" class="btn btn-info">Ecouter</a>&nbsp;
+                    <a href="/get_recos/artist/{{id_artist[0][i]}}" class="btn btn-warning">Recommandations</a>
+                </div>
+            </div><br/>
+            {%endfor%}
+        </div>
+        <div class="col-sm">
+          {%for i in range(0,limite) %}
+            <div class="card bg-light text-dark" style="width: 18rem;">
+                <a href="{{href[1][i]}}" target="_blank"><img class="card-img-top" src="{{img[1][i]}}" alt="{{names[1][i]}}"></a>
+                <div class="card-body">
+                    <h5 class="card-title">{{names[1][i]}}</h5>
+                    <p class="card-text">Popularité : {{popularity[1][i]}}<br/>{{followers[1][i]}} Followers<br/>{{genres[1][i][0]}}</p>
+                    <a href="{{href[1][i]}}" class="btn btn-info">Ecouter</a>&nbsp;
+                    <a href="/get_recos/artist/{{id_artist[1][i]}}" class="btn btn-warning">Recommandations</a>
+                </div>
+            </div><br/>
+            {%endfor%}
+        </div>    
+        <div class="col-sm">
+          {%for i in range(0,limite) %}
+            <div class="card bg-light text-dark" style="width: 18rem;">
+                <a href="{{href[2][i]}}" target="_blank"><img class="card-img-top" src="{{img[2][i]}}" alt="{{names[2][i]}}"></a>
+                <div class="card-body">
+                    <h5 class="card-title">{{names[2][i]}}</h5>
+                    <p class="card-text">Popularité : {{popularity[2][i]}}<br/>{{followers[2][i]}} Followers<br/>{{genres[2][i][0]}}</p>
+                    <a href="{{href[2][i]}}" class="btn btn-info">Ecouter</a>&nbsp;
+                    <a href="/get_recos/artist/{{id_artist[2][i]}}" class="btn btn-warning">Recommandations</a>
+                </div>
+            </div><br/>
+            {%endfor%}
+        </div>
+    </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,71 @@
+{% extends 'base.html' %} 
+{% block title %}Mes morceaux favoris{% endblock %}
+{% block content %} 
+
+
+
+<div class="container text-center px-3 py-3 pt-md-5 pb-md-4 mx-auto" style="color:white;">
+    <div class="row align-items-start">
+        <h1 class="display-4">Mes morceaux favoris</h1>
+    </div>
+    <div class="row px-3">
+    </div>
+    <div class="row"class="justify-content-center bg-dark  px-3 py-3 pt-md-5 pb-md-4 mx-auto">
+        <div class="btn-group" role="group" aria-label="Basic outlined example">
+            <div class="col-md-12">
+              <a href="/top_tracks/short_term/30"><button type="button" class="btn btn-md btn-light btn-outline-secondary px-2">Ce mois-ci...</button></a>
+              <a href="/top_tracks/medium_term/30"><button type="button" class="btn btn-md btn-light btn-outline-secondary px-2">Ces 6 derniers mois...</button></a>
+              <a href="/top_tracks/long_term/30"><button type="button" class="btn btn-md btn-light btn-outline-secondary px-2">Depuis des années...</button></a>
+            </div>
+
+        </div>
+    </div>
+  
+        
+    <div style="margin:10px;">
+    </div>    
+    
+    <div class="row align-items-start">
+        <div class="col-sm">
+          {%for i in range(0,limite) %}
+            <div class="card bg-light text-dark" style="width: 18rem;">
+                <a href="{{track_href[0][i]}}" target="_blank"><img class="card-img-top" src="{{img_urls[0][i]}}" alt="{{track_name[0][i]}} - {{artist_names[0][i]}}"></a>
+                <div class="card-body">
+                    <h5 class="card-title">{{track_name[0][i]}}</h5>
+                    <p class="card-text">- <b><a href="{{artist_href[0][i]}}" target="_blank">par {{artist_names[0][i]}}</a></b> - <br/>extrait de l'album <a href="{{album_href[0][i]}}" target="_blank"><i>{{album_name[0][i]}}</i></a><br/>Popularité : {{track_popularity[0][i]}}</p>
+                    <a href="{{track_href[0][i]}}" class="btn btn-info">Ecouter</a>&nbsp;
+                    <a href="/get_recos/track/{{track_ids[0][i]}}" class="btn btn-warning">Recommandations</a>
+                </div>
+            </div><br/>
+            {%endfor%}
+        </div>
+        <div class="col-sm">
+          {%for i in range(0,limite) %}
+            <div class="card bg-light text-dark" style="width: 18rem;">
+                <a href="{{track_href[1][i]}}" target="_blank"><img class="card-img-top" src="{{img_urls[1][i]}}" alt="{{track_name[1][i]}} - {{artist_names[1][i]}}"></a>
+                <div class="card-body">
+                    <h5 class="card-title">{{track_name[1][i]}}</h5>
+                    <p class="card-text">- <b><a href="{{artist_href[1][i]}}" target="_blank">{{artist_names[1][i]}}</a></b> -<br/>extrait de l'album <a href="{{album_href[1][i]}}" target="_blank"><i>{{album_name[1][i]}}</i></a><br/>Popularité : {{track_popularity[1][i]}}</p>
+                    <a href="{{track_href[1][i]}}" class="btn btn-info">Ecouter</a>&nbsp;
+                    <a href="/get_recos/track/{{track_ids[1][i]}}" class="btn btn-warning">Recommandations</a>
+                </div>
+            </div><br/>
+            {%endfor%}
+        </div>
+        <div class="col-sm">
+          {%for i in range(0,limite) %}
+            <div class="card bg-light text-dark" style="width: 18rem;">
+                <a href="{{track_href[2][i]}}" target="_blank"><img class="card-img-top" src="{{img_urls[2][i]}}" alt="{{track_name[2][i]}} - {{artist_names[2][i]}}"></a>
+                <div class="card-body">
+                    <h5 class="card-title">{{track_name[2][i]}}</h5>
+                    <p class="card-text">- <b><a href="{{artist_href[2][i]}}" target="_blank">{{artist_names[2][i]}}</a></b> -<br/>extrait de l'album <a href="{{album_href[2][i]}}" target="_blank"><i>{{album_name[2][i]}}</i></a><br/>Popularité : {{track_popularity[2][i]}}</p>
+                    <a href="{{track_href[2][i]}}" class="btn btn-info">Ecouter</a>&nbsp;
+                    <a href="/get_recos/track/{{track_ids[2][i]}}" class="btn btn-warning">Recommandations</a>
+                </div>
+            </div><br/>
+            {%endfor%}
+        </div>
+    </div>
+</div>
+
+{% endblock %}
