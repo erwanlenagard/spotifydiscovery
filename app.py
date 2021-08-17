@@ -216,7 +216,7 @@ def get_recos(name,danceability,energy,valence,tempo,speechiness,acousticness,in
         artist_ids.append(artistrelated_id)
        
         #Pour chaque artiste lié on récupère un nombre de chanson recommandées (pas forcément de cet artiste)
-        reco=spotify.recommendations(market='fr', seed_artists=[artistrelated_uri], limit=10,
+        reco=spotify.recommendations(market='fr', seed_artists=[artistrelated_uri], limit=5,
                                      target_danceability=danceability, target_energy=energy, target_valence=valence, target_tempo=tempo,
                                      target_speechiness=speechiness, target_acousticness=acousticness,
                                      target_instrumentalness=instrumentalness, target_liveness=liveness)
@@ -323,13 +323,14 @@ def parsing_top_artists(top_artist):
         artist_genres.append(item['genres'])
         artist_href.append(item['external_urls']['spotify'])
     
-    chunked_img_urls=list(chunks(img_urls, 10))
-    chunked_artist_ids=list(chunks(artist_ids, 10))
-    chunked_artist_names=list(chunks(artist_names, 10))
-    chunked_artist_popularity=list(chunks(artist_popularity, 10))
-    chunked_artist_followers=list(chunks(artist_followers, 10))
-    chunked_artist_genres=list(chunks(artist_genres, 10))
-    chunked_artist_href=list(chunks(artist_href, 10))
+    chunked_img_urls=list(chunks(img_urls, int(round(len(img_urls)/3,0))))
+    chunked_artist_ids=list(chunks(artist_ids, int(round(len(artist_ids)/3,0))))
+    chunked_artist_names=list(chunks(artist_names, int(round(len(artist_names)/3,0))))
+    chunked_artist_popularity=list(chunks(artist_popularity,int(round(len(artist_popularity)/3,0))))
+    chunked_artist_followers=list(chunks(artist_followers, int(round(len(artist_followers)/3,0))))
+    chunked_artist_genres=list(chunks(artist_genres, int(round(len(artist_genres)/3,0))))
+    chunked_artist_href=list(chunks(artist_href, int(round(len(artist_href)/3,0))))
+    print(chunked_artist_ids)
     return chunked_img_urls, chunked_artist_ids, chunked_artist_names, chunked_artist_popularity, chunked_artist_followers, chunked_artist_genres, chunked_artist_href
 
 
@@ -343,12 +344,11 @@ def top_artists(term='medium-term',limite=30):
         
     spotify = spotipy.Spotify(auth_manager=auth_manager)
     
-    top_artist=spotify.current_user_top_artists(limit=limite,offset=0, time_range=term)
+    top_artist=spotify.current_user_top_artists(limit=int(limite),offset=0, time_range=term)
     
     chunked_img_urls, chunked_artist_ids, chunked_artist_names, chunked_artist_popularity, chunked_artist_followers, chunked_artist_genres, chunked_artist_href = parsing_top_artists(top_artist)
     
-    return render_template('user_top_artists.html', limite=int(round((int(limite)/3),0)), id_artist=chunked_artist_ids,img= chunked_img_urls, names=chunked_artist_names, popularity=chunked_artist_popularity,
-                          followers=chunked_artist_followers, genres=chunked_artist_genres, href=chunked_artist_href)
+    return render_template('user_top_artists.html', id_artist=chunked_artist_ids,img= chunked_img_urls, names=chunked_artist_names, popularity=chunked_artist_popularity, followers=chunked_artist_followers, genres=chunked_artist_genres, href=chunked_artist_href)
 
 
 
@@ -362,11 +362,11 @@ def top_tracks(term='medium-term',limite=30):
     spotify = spotipy.Spotify(auth_manager=auth_manager)
     
 
-    top_tracks=spotify.current_user_top_tracks(limit=limite,offset=0, time_range=term)
+    top_tracks=spotify.current_user_top_tracks(limit=int(limite),offset=0, time_range=term)
     
     img_urls,artist_names,track_ids,track_popularity,track_href,album_href,artist_href,album_name,track_name = parsing_top_tracks(top_tracks)
     
-    return render_template('user_top_tracks.html', limite=int(round((int(limite)/3),0)), img_urls=img_urls, artist_names=artist_names, track_ids=track_ids, track_popularity = track_popularity, track_href=track_href, album_href=album_href, artist_href=artist_href, album_name=album_name,track_name=track_name)
+    return render_template('user_top_tracks.html', img_urls=img_urls, artist_names=artist_names, track_ids=track_ids, track_popularity = track_popularity, track_href=track_href, album_href=album_href, artist_href=artist_href, album_name=album_name,track_name=track_name)
 
 
 
@@ -416,8 +416,6 @@ def parsing_top_tracks(top_tracks):
 
 
 
-
-
 @app.route('/get_recos/<type_reco>/<spotify_id>')
 def create_playlist_basic_recos(type_reco,spotify_id):
     cache_handler = spotipy.cache_handler.CacheFileHandler(cache_path=session_cache_path())
@@ -442,7 +440,6 @@ def create_playlist_basic_recos(type_reco,spotify_id):
     
     return render_template('success.html', name=str(info['name']), 
                            playlist_id="https://open.spotify.com/embed/playlist/"+str(playlist_info['id']))
-
 
 
 def get_basic_recos(type_reco,spotify_id):
@@ -489,8 +486,7 @@ def get_basic_recos(type_reco,spotify_id):
             trackreco_id=trackreco['id']
             print(trackreco_id)
             final_top_track.append(trackreco_id)
-
-        
+       
             
     l_top_track=list(set(final_top_track))
     shuffle(l_top_track)
