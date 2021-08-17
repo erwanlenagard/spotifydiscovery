@@ -1,0 +1,27 @@
+{% import  "bootstrap/wtf.html" as wtf %}
+{% extends 'base.html' %} 
+{% block title %}Analyse de la discographie d'un artiste{% endblock %}
+{% block content %}
+
+      
+<div class="align-items-center bg-dark" style="height: 100vh;color:white;" >
+  <div class="row">
+      <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
+          <h1 class="pt-5 pb-2">Analyse de la discographie</h1>
+          <p class="lead">Entrez le nom d'un artiste pour analyser sa discographie.</p>
+
+
+          <form class="form-inline"  method="POST">
+              {{ form.hidden_tag() }}
+              <div class="form-group">
+                {{ form.name.label }} {{ form.name(class="form-control") }}
+              </div><br/>
+              <div class="form-group">
+                  {{ form.submit(class="btn btn-default btn-success") }}
+              </div>
+          </form>
+          <p><i>Patientez un peu, les chansons sont en cours d'analyse</i></p>
+      </div>
+  </div>
+</div>
+{% endblock %}

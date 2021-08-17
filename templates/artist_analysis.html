@@ -1,0 +1,101 @@
+{% extends 'base.html' %} 
+{% block title %}Mes artistes favoris{% endblock %}
+
+{% block content %} 
+
+<div class="row">
+    <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
+        <h1 class="pt-5 pb-2">La playlist a été généré pour {{name}}</h1>
+    </div>
+</div>
+<div class="row">
+    <div class="col-sm">
+        <canvas id="radar_chart" class="bg-light" width="400" height="400"></canvas> 
+    </div>
+    <div class="col-sm">
+        <canvas id="radar_chart" class="bg-light" width="400" height="400"></canvas> 
+    </div>
+</div>
+
+
+
+<script>
+Chart.defaults.global.defaultFontFamily = "Segoe UI Emoji";
+Chart.defaults.global.defaultFontSize=12;
+    
+var ctx = document.getElementById('radar_chart')
+function makeRadarChart() {
+    var chart_labels=  [{% for item in label_radar %}
+    "{{item}}",
+        {% endfor %}];
+    var chart_data= [{% for item in val_radar %}
+    "{{item}}",
+        {% endfor %}];
+    var chart = new Chart(ctx, {
+        type: "radar",
+        options: {
+            backgroundColor:'rgba(110, 205,205, 0.8)',
+            responsive:true,
+            scale: {
+                display: true,
+                fontSize:12,
+                pointLabels: {
+                    fontSize: 18
+                }
+            },
+            layout: {
+                padding: {
+                    left: 10,
+                    right: 10,
+                    top: 10,
+                    bottom: 10
+                }
+            },
+            legend: {
+                labels: { fontFamily: 'FontAwesome' ,
+                        },
+                display: false,
+                fontSize:16
+            },
+            tooltips: {
+                mode: 'label',
+                position:'nearest',
+                titleFontSize:20,
+                titleSpacing:2,
+                titleMarginBottom:10,
+                bodyFontSize:16,
+                xPadding:10,
+                yPadding:10,
+                displayColors:false,
+                callbacks: {
+                    label: function(tooltipItem) {
+                        return Number(tooltipItem.yLabel) + " réactions ";
+                    }
+                }
+            },
+            title: {
+                display: false,
+                text: 'Reactions',
+                position: 'top',
+                fontSize:18
+            },  
+        },
+        data:  { 
+            labels: chart_labels,
+            datasets: [{
+                    data: chart_data,
+                    lineTension:0,
+                    borderColor:'rgba(110, 205,205, 0.8)',
+                    backgroundColor:'rgba(110, 205,205, 0.2)',
+                    pointBackgroundColor:'rgba(110, 205,205, 1)',
+                    pointBorderColor:'rgba(255, 255, 255, 1)',
+                    pointBorderWidth:1,
+                    pointRadius:5
+                }]
+        }
+    });
+}
+
+makeRadarChart();
+</script> 
+{% endblock %}
