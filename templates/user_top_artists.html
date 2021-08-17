@@ -29,7 +29,7 @@
 
     <div class="row align-items-start">
         <div class="col-sm">
-          {%for i in range(0,limite) %}
+          {%for i in range(0,names[0]|length) %}
             <div class="card bg-light text-dark" style="width: 18rem;">
                 <a href="{{href[0][i]}}" target="_blank"><img class="card-img-top" src="{{img[0][i]}}" alt="{{names[0][i]}}"></a>
                 <div class="card-body">
@@ -42,7 +42,7 @@
             {%endfor%}
         </div>
         <div class="col-sm">
-          {%for i in range(0,limite) %}
+          {%for i in range(0,names[1]|length) %}
             <div class="card bg-light text-dark" style="width: 18rem;">
                 <a href="{{href[1][i]}}" target="_blank"><img class="card-img-top" src="{{img[1][i]}}" alt="{{names[1][i]}}"></a>
                 <div class="card-body">
@@ -55,7 +55,7 @@
             {%endfor%}
         </div>    
         <div class="col-sm">
-          {%for i in range(0,limite) %}
+          {%for i in range(0,names[2]|length) %}
             <div class="card bg-light text-dark" style="width: 18rem;">
                 <a href="{{href[2][i]}}" target="_blank"><img class="card-img-top" src="{{img[2][i]}}" alt="{{names[2][i]}}"></a>
                 <div class="card-body">
