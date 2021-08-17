@@ -10,6 +10,11 @@ import spotipy
 import uuid
 from random import shuffle
 
+import pandas as pd
+from pandas import json_normalize
+
+import plotly.express as px
+
 import logging
 import sys
 
@@ -34,7 +39,12 @@ if not os.path.exists(caches_folder):
 
 def session_cache_path():
     return caches_folder + session.get('uuid')
-    
+
+
+
+class AnalysisForm(FlaskForm):
+    name = StringField('Indiquez un nom d\'artiste', validators=[DataRequired()])
+    submit = SubmitField('Analyser sa discographie')   
     
 class ArtistForm(FlaskForm):
     name = StringField('Indiquez un nom d\'artiste', validators=[DataRequired()])
@@ -493,6 +503,84 @@ def get_basic_recos(type_reco,spotify_id):
     return l_top_track
 
 
+
+
+@app.route('/artist_analysis', methods=['GET', 'POST'])
+def create_artist_analysis():
+    cache_handler = spotipy.cache_handler.CacheFileHandler(cache_path=session_cache_path())
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+
+    form = AnalysisForm()
+    if form.validate_on_submit():
+        artist_name = form.name.data
+        features=analyse_artist(artist_name)
+        df_radar=features[['album_id','acousticness','danceability','energy','instrumentalness',
+                'liveness','speechiness','valence']].mean().reset_index()
+        print(df_radar.columns)
+        print(list(df_radar['index']))
+        print(list(df_radar[0]))
+        return render_template('artist_analysis.html',name=artist_name , label_radar=list(df_radar['index']),val_radar=list(df_radar[0]))    
+        
+    return render_template('form_analyze_artist.html', form=form)
+
+
+def radar(df_radar):
+    df = pd.DataFrame(dict(
+    r=list(df_radar[0]),
+    theta=list(df_radar['index'])))
+    fig = px.line_polar(df, r='r', theta='theta', line_close=True)
+    fig.update_traces(fill='toself')
+    return fig
+
+
+def analyse_artist(artist_name):
+    cache_handler = spotipy.cache_handler.CacheFileHandler(cache_path=session_cache_path())
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    
+    results_search=spotify.search(str(artist_name), type='artist', limit=1)
+
+    df_albums=pd.DataFrame()
+    #on récupère la liste des albums
+    res_albums=spotify.artist_albums(results_search['artists']['items'][0]['uri'],album_type="album",country ='fr',limit=20)
+    df_albums_tmp=json_normalize(res_albums['items'])[['id','name','release_date','total_tracks']]
+    df_albums=pd.concat([df_albums,df_albums_tmp],ignore_index=True,sort=True)
+
+    df_tracks=pd.DataFrame()
+    #on récupère la liste des tracks
+    for album_id in df_albums['id'].unique():
+        res_album_tracks=spotify.album_tracks(album_id)
+        df_tracks_tmp=json_normalize(res_album_tracks['items'])[['id','name','track_number','external_urls.spotify','duration_ms']]
+        df_tracks_tmp['album_id']=album_id
+        df_tracks=pd.concat([df_tracks,df_tracks_tmp],ignore_index=True,sort=True)  
+
+
+    #on crée des groupes de 100 tracks
+    l_tracks=chunks(list(df_tracks['id']),100)
+
+    df_features=pd.DataFrame()
+    #pour chaque groupe on récupère les features de chaque track
+    for chunk in l_tracks:
+        res_features=spotify.audio_features(chunk)
+        df_features_tmp=json_normalize(res_features)
+        df_features=pd.concat([df_features,df_features_tmp],ignore_index=True,sort=True)  
+
+    #on fusionne nos 3 dataframes
+    df_tracks_features=pd.merge(df_features,df_tracks, how='left', on='id')
+    df_features_vf=pd.merge(df_tracks_features,df_albums, how='left', left_on='album_id',right_on='id')
+    df_features_vf=df_features_vf[['acousticness', 'analysis_url', 'danceability', 'duration_ms_x',
+           'energy', 'id_x', 'instrumentalness', 'key', 'liveness', 'loudness',
+           'mode', 'speechiness', 'tempo', 'time_signature', 'track_href', 'type',
+           'uri', 'valence', 'album_id', 'external_urls.spotify',
+           'name_x', 'track_number', 'name_y', 'release_date',
+           'total_tracks']].rename(columns={"duration_ms_x": "duration_ms", "id_x": "track_id","name_x": "track_name","name_y": "album_name"})  
+    
+    return df_features_vf
 
 @app.route('/sign_out')
 def sign_out():
