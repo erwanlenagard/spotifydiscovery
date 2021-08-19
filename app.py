@@ -15,6 +15,7 @@ from pandas import json_normalize
 
 import plotly.express as px
 
+import datetime
 import logging
 import sys
 
@@ -517,15 +518,84 @@ def create_artist_analysis():
     if form.validate_on_submit():
         artist_name = form.name.data
         features=analyse_artist(artist_name)
+        print(features.columns)
         df_radar=features[['album_id','acousticness','danceability','energy','instrumentalness',
                 'liveness','speechiness','valence']].mean().reset_index()
-        print(df_radar.columns)
-        print(list(df_radar['index']))
-        print(list(df_radar[0]))
-        return render_template('artist_analysis.html',name=artist_name , label_radar=list(df_radar['index']),val_radar=list(df_radar[0]))    
+
+        timestamp=datetime.datetime.fromtimestamp(features['duration_ms'].sum()/1000.0)
+        timestamp_str=str(timestamp.hour)+'h '+str(timestamp.minute)+'min'
+        
+        df_popularity=features[['track_id','track_name','album_name','img_album_url','track_player_url','popularity']].nlargest(5, 'popularity')
+        
+        
+        df_danceability=features[['track_id','track_name','album_name','img_album_url','track_player_url','danceability']].nlargest(10, 'danceability')
+        
+        df_energy=features[['track_name','energy']].nlargest(10, 'energy')
+        df_danceability=features[['track_name','danceability']].nlargest(10, 'danceability')
+        
+        df_keys=features['key'].value_counts(normalize=True).to_frame().reset_index()
+        df_keys['index'] = df_keys['index'].replace([0,1,2,3,4,5,6,7,8,9,10,11],['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'])
+        
+        df_mode=features['mode'].value_counts(normalize=True).to_frame().reset_index()
+        df_mode['index'] = df_mode['index'].replace([0,1],['mineur','majeur'])
+        
+        
+        per_mineur=features[features['mode']==0]['mode'].value_counts()/len(features)
+        per_mineur=per_mineur[0]
+        per_majeur=1-per_mineur
+        
+        print(features.columns)
+        
+        features['id']=features.index
+        
+        context = {
+        'data': features[['id','track_id','track_name','album_name','release_date','acousticness','danceability']].to_dict(orient = 'records'),
+    }
+
+        
+        return render_template('artist_analysis.html',name=artist_name, nb_albums=len(features['album_id'].unique()),
+                               nb_tracks=len(features['track_id'].unique()), time=timestamp_str, 
+                               label_radar=list(df_radar['index']),val_radar=list(df_radar[0]),
+                               label_top_energy=list(df_energy['track_name']),val_top_energy=list(df_energy['energy']),
+                               label_key=list(df_keys['index']),val_key=list(df_keys['key'].round(3)*100),
+                               label_mode=list(df_mode['index']),val_mode=list(df_mode['mode'].round(3)*100),
+                               df_pop=df_popularity,df_dance=df_danceability,per_mineur=round(per_mineur,1),per_majeur=round(per_majeur,1),
+                               tables=features[['id','track_id','track_name','album_name',
+                                                'release_date','acousticness','danceability','energy', 'instrumentalness', 
+                                                'key', 'liveness', 'loudness','mode', 'speechiness', 'tempo', 'time_signature','valence',
+                                                'popularity']].to_dict(orient = 'records')
+                              )    
         
     return render_template('form_analyze_artist.html', form=form)
 
+
+def get_all_albums(artist_id):
+    cache_handler = spotipy.cache_handler.CacheFileHandler(cache_path=session_cache_path())
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+        
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    res_albums=spotify.artist_albums(artist_id,album_type="album",country ='fr',limit=50)
+    all_albums=res_albums['items']
+    while res_albums['next'] is not None:
+        res_albums=spotify.next(res_albums)
+        all_albums.extend(res_albums['items'])
+    return all_albums
+
+def get_all_tracks(album_id):
+    cache_handler = spotipy.cache_handler.CacheFileHandler(cache_path=session_cache_path())
+    auth_manager = spotipy.oauth2.SpotifyOAuth(cache_handler=cache_handler)
+    if not auth_manager.validate_token(cache_handler.get_cached_token()):
+        return redirect('/')
+        
+    spotify = spotipy.Spotify(auth_manager=auth_manager)
+    res_album_tracks=spotify.album_tracks(album_id, limit=50)
+    all_tracks=res_album_tracks['items']
+    while res_album_tracks['next'] is not None:
+        res_album_tracks=spotify.next(res_album_tracks)
+        all_tracks.extend(res_album_tracks['items'])
+    return all_tracks
 
 def radar(df_radar):
     df = pd.DataFrame(dict(
@@ -535,6 +605,18 @@ def radar(df_radar):
     fig.update_traces(fill='toself')
     return fig
 
+def parsing_track(json_track):
+    all_tracks=[]
+    for track in json_track['tracks']:
+        track_id=track['id']
+        img_album_url=track['album']['images'][0]['url']
+        album_player_url=track['album']['external_urls']['spotify']
+        popularity=track['popularity']
+        current_track=(track_id,img_album_url,album_player_url,popularity)
+        all_tracks.append(current_track)
+
+    df_tracks=pd.DataFrame.from_records(all_tracks,columns=['track_id','img_album_url','album_player_url','popularity'])    
+    return df_tracks
 
 def analyse_artist(artist_name):
     cache_handler = spotipy.cache_handler.CacheFileHandler(cache_path=session_cache_path())
@@ -545,21 +627,32 @@ def analyse_artist(artist_name):
     
     results_search=spotify.search(str(artist_name), type='artist', limit=1)
 
-    df_albums=pd.DataFrame()
+    
     #on récupère la liste des albums
-    res_albums=spotify.artist_albums(results_search['artists']['items'][0]['uri'],album_type="album",country ='fr',limit=20)
-    df_albums_tmp=json_normalize(res_albums['items'])[['id','name','release_date','total_tracks']]
-    df_albums=pd.concat([df_albums,df_albums_tmp],ignore_index=True,sort=True)
-
+    res_albums=get_all_albums(results_search['artists']['items'][0]['uri'])
+    df_albums=json_normalize(res_albums)[['id','name','release_date','total_tracks']]
+    
+    df_albums.drop_duplicates(subset=['name'],inplace=True)
     df_tracks=pd.DataFrame()
-    #on récupère la liste des tracks
+    #on récupère la liste des tracks de l'album
     for album_id in df_albums['id'].unique():
-        res_album_tracks=spotify.album_tracks(album_id)
-        df_tracks_tmp=json_normalize(res_album_tracks['items'])[['id','name','track_number','external_urls.spotify','duration_ms']]
+        res_album_tracks=get_all_tracks(album_id)
+        df_tracks_tmp=json_normalize(res_album_tracks)[['id','name','track_number','external_urls.spotify','duration_ms']]
         df_tracks_tmp['album_id']=album_id
-        df_tracks=pd.concat([df_tracks,df_tracks_tmp],ignore_index=True,sort=True)  
+        df_tracks=pd.concat([df_tracks,df_tracks_tmp],ignore_index=True,sort=True)   
 
 
+    #on crée des groupes de 50 tracks
+    l_tracks_50=chunks(list(df_tracks['id']),50)
+    #on récupère le detail des tracks
+    df_track_details=pd.DataFrame()
+    for chunk in l_tracks_50:
+        res_tracks=spotify.tracks(chunk,market='fr')
+        df_track_details_tmp=parsing_track(res_tracks)
+        df_track_details_tmp['original_id']=chunk
+        df_track_details=pd.concat([df_track_details,df_track_details_tmp],ignore_index=True,sort=True) 
+        
+        
     #on crée des groupes de 100 tracks
     l_tracks=chunks(list(df_tracks['id']),100)
 
@@ -568,17 +661,24 @@ def analyse_artist(artist_name):
     for chunk in l_tracks:
         res_features=spotify.audio_features(chunk)
         df_features_tmp=json_normalize(res_features)
+        df_features_tmp['original_id']=chunk
         df_features=pd.concat([df_features,df_features_tmp],ignore_index=True,sort=True)  
 
-    #on fusionne nos 3 dataframes
-    df_tracks_features=pd.merge(df_features,df_tracks, how='left', on='id')
-    df_features_vf=pd.merge(df_tracks_features,df_albums, how='left', left_on='album_id',right_on='id')
-    df_features_vf=df_features_vf[['acousticness', 'analysis_url', 'danceability', 'duration_ms_x',
-           'energy', 'id_x', 'instrumentalness', 'key', 'liveness', 'loudness',
+    #on fusionne nos dataframes
+    df_tracks_features=pd.merge(df_features,df_tracks, how='left', left_on='original_id',right_on='id')
+    df_tracks_features=df_tracks_features.drop(columns={'id_y','duration_ms_y'}).rename(columns={'id_x':'track_id','duration_ms_x':'duration_ms'})
+    df_tracks_detailed=pd.merge(df_tracks_features,df_track_details, how='left', left_on='track_id',right_on='original_id')
+    df_tracks_detailed=df_tracks_detailed.drop(columns={'track_id_x','original_id_x','track_id_y'}).rename(columns={'original_id_y':'track_id'})
+    df_features_vf=pd.merge(df_tracks_detailed,df_albums, how='left', left_on='album_id',right_on='id')
+    df_features_vf=df_features_vf[['acousticness', 'analysis_url', 'danceability', 'duration_ms',
+           'energy', 'instrumentalness', 'key', 'liveness', 'loudness',
            'mode', 'speechiness', 'tempo', 'time_signature', 'track_href', 'type',
            'uri', 'valence', 'album_id', 'external_urls.spotify',
            'name_x', 'track_number', 'name_y', 'release_date',
-           'total_tracks']].rename(columns={"duration_ms_x": "duration_ms", "id_x": "track_id","name_x": "track_name","name_y": "album_name"})  
+           'total_tracks','track_id','img_album_url','album_player_url','popularity']].rename(columns={"name_x": "track_name",
+                                            "name_y": "album_name","external_urls.spotify":"track_player_url"})
+    
+    df_features_vf=df_features_vf.drop_duplicates()
     
     return df_features_vf
 
