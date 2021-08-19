@@ -1,22 +1,551 @@
 {% extends 'base.html' %} 
 {% block title %}Mes artistes favoris{% endblock %}
 
-{% block content %} 
+{% block content %}*
+
+
+<script src='https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+<script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.10.21/tableExport.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.10.21/libs/jsPDF/jspdf.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/tableexport.jquery.plugin@1.10.21/libs/jsPDF-AutoTable/jspdf.plugin.autotable.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.css">
+<script src="https://unpkg.com/bootstrap-table@1.18.3/dist/bootstrap-table.min.js"></script>
+<script src="https://unpkg.com/bootstrap-table@1.18.3/dist/extensions/export/bootstrap-table-export.min.js"></script>
 
 <div class="row">
     <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
         <h1 class="pt-5 pb-2">La playlist a été généré pour {{name}}</h1>
     </div>
 </div>
-<div class="row">
-    <div class="col-sm">
-        <canvas id="radar_chart" class="bg-light" width="400" height="400"></canvas> 
+<div class="py-5 bg-light">
+    <div class="container" >
+    <div class="row" >
+    <p class="display-4">Discographie analysée</p>
     </div>
-    <div class="col-sm">
-        <canvas id="radar_chart" class="bg-light" width="400" height="400"></canvas> 
+    <div class="row"><p>&nbsp;</p></div>
+        <div class="row">
+            <div class="col-12 coll-lg-6 col-xl">
+                <div class="card ">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                            <h6 class="card-title text-uppercase text-muted mb-2">#Albums analysés</h6>
+                            <span class ="h2 mb-0">{{nb_albums}} albums</span>
+                            </div>
+                            <div class="col-auto">
+                            <i class="fas fa-record-vinyl fa-3x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 coll-lg-6 col-xl">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                            <h6 class="card-title text-uppercase text-muted mb-2">#Titres analysés</h6>
+                            <span class ="h2 mb-0">{{nb_tracks}} morceaux</span>
+                            </div>
+                            <div class="col-auto">
+                            <i class="fas fa-music fa-3x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 coll-lg-6 col-xl">
+                <div class="card">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col">
+                            <h6 class="card-title text-uppercase text-muted mb-2">#Durée totale</h6>
+                            <span class ="h2 mb-0">{{time}}</span>
+                            </div>
+                            <div class="col-auto">
+                            <i class="fas fa-clock fa-3x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
+<div class="py-5">
+    <div class="container">
+        <div class="row">
+            <p class="display-4 text-light">Profil musical</p><p>&nbsp;</p>
+        </div>
+        <div class="row"><p>&nbsp;</p></div>
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card card-body bg-white">
+                    <canvas id="radar_chart" width="500" height="500"></canvas>
+                    <hr/>
+                    <div class="card-body bg-light">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h6 class="card-title text-uppercase text-muted mb-2">Titres populaires...</h6>
+                                <p class ="lead">{% for key,value in df_pop.iterrows() %}
+                                    <a href="{{ value['track_player_url']}}" target="_blank">{{ value['track_name']}}</a>, 
+                            {% endfor %} ...
+                                </p>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-smile fa-3x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6">
+                <div class="card card-body bg-white">
+                    <canvas id="pie_chart_key" width="500" height="500"></canvas>
+                    <hr/>
+                    <div class="card-body bg-light">
+                        <div class="row align-items-center">
+                            <div class="col">
+                                <h6 class="card-title text-uppercase text-muted mb-2">Mode principal</h6>
+                                <p class ="lead">
+                                    {{per_mineur*100}}% des titres sont en mode mineur<br/>
+                                    {{per_majeur*100}}% des titres sont en mode majeur
+                                </p>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-hashtag fa-3x"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- <div class="container">
+  <div class="row">
+    <div class="col-12 col-sm-8 col-lg-5">
+      <h6 class="text-muted">Titres populaires</h6> 
+      <ul class="list-group">
+        {% for key,value in df_pop.iterrows() %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+              <a href="{{ value['track_player_url']}}" target="_blank"><img src="{{value['img_album_url']}}" class="img-thumbnail img-rounded img-responsive" alt="{{ value['track_name'] }}" style="width:130px;"></a>
+          </div>
+              <div><div class="lead">{{ value['track_name'] }}</div>
+              <span><i>extrait de "{{value['album_name']}}"</i></span></div>
+              <button class="btn btn-success">Popularité : {{ value['popularity']|int }}</button>
+        {% endfor %}
+      </ul>
+    </div>
+    <div class="col-12 col-sm-8 col-lg-5">
+      <h6 class="text-muted">Titres dansants</h6> 
+      <ul class="list-group">
+        {% for key,value in df_dance.iterrows() %}
+          <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+              <a href="{{ value['track_player_url']}}" target="_blank"><img src="{{value['img_album_url']}}" class="img-thumbnail img-rounded img-responsive" alt="{{ value['track_name'] }}" style="width:130px;"></a>
+          </div>
+              <div><div class="lead">{{ value['track_name'] }}</div>
+              <span><i>extrait de "{{value['album_name']}}"</i></span></div>
+              <button class="btn btn-success">Danceability : {{ (value['danceability']*100)|int }}</button>
+        {% endfor %}
+      </ul>
+    </div>
+    </div>
+</div> -->
+
+
+<div class="container bg-light">
+    <div class="row">
+        <div class="row">
+            <div id="toolbar" class="select col-12 col-sm-8 col-lg-5">
+                <select class="form-control">
+                    <option value="all">Tout exporter</option>
+                    <option value="selected">Exporter la sélection</option>
+                </select>
+            </div> 
+        </div>
+        <table id="table" class="bg-light" 
+               data-pagination="true"
+               data-search="true"
+               data-filter-control="true" 
+               data-show-export="true"
+               data-click-to-select="true"
+               data-maintain-selected="true"
+               data-page-size="20"
+              data-toolbar="#toolbar"
+        >
+          <thead>
+            <tr>
+                <th data-field="state" data-checkbox="true"></th>
+              <th data-field="id">ID</th>
+              <th data-field="track_id">Track Id</th>
+              <th data-field="track_name">Titre</th>
+              <th data-field="album_name">Album</th>
+              <th data-field="release_date">Date de sortie</th>
+              <th data-field="acousticness">Acoustique</th>
+              <th data-field="danceability">Dansant</th>
+                <th data-field="energy">energy</th>
+                <th data-field="instrumentalness">instrumentalness</th>
+                <th data-field="key">key</th>
+                <th data-field="liveness">liveness</th>
+                <th data-field="loudness">loudness</th>
+                <th data-field="mode">mode</th>
+                <th data-field="speechiness">speechiness</th>
+                <th data-field="tempo">tempo</th>
+                <th data-field="time_signature">time_signature</th>
+                <th data-field="valence">valence</th>
+                <th data-field="popularity">popularity</th>                          
+            </tr>
+          </thead>
+        </table>
+    </div>
+</div>
+
+
+<script>
+  var $table = $('#table'); 
+
+  $(function() {
+var data = {{tables|safe}}
+    $('#toolbar').find('select').change(function () {
+      $table.bootstrapTable('destroy').bootstrapTable({  
+          data:data,
+        exportDataType: $(this).val(),
+        exportTypes: ['json', 'xml', 'csv', 'txt', 'sql', 'excel', 'pdf'],
+        columns: [
+          {
+            field: 'state',
+            checkbox: true,
+            visible: $(this).val() === 'selected'
+          },
+            {
+            field: 'id',
+            title: 'id',
+            sortable: true,
+          },
+          {
+            field: 'track_id',
+            title: 'track_id',
+              sortable: true,
+          }, {
+            field: 'track_name',
+            title: 'track_name',
+              sortable: true,
+          }, {
+            field: 'album_name',
+            title: 'album_name',
+            sortable: true,
+          }, {
+            field: 'release_date',
+            title: 'release_date',
+            sortable: true,
+          }, {
+            field: 'acousticness',
+            title: 'acousticness',
+            sortable: true,
+          },  {
+            field: 'danceability',
+            title: 'danceability',
+            sortable: true,
+          }, {
+            field: 'energy',
+            title: 'energy',
+            sortable: true,
+          }, {
+            field: 'instrumentalness',
+            title: 'instrumentalness',
+            sortable: true,
+          }, {
+            field: 'key',
+            title: 'key',
+            sortable: true,
+          }, {
+            field: 'liveness',
+            title: 'liveness',
+            sortable: true,
+          }, {
+            field: 'loudness',
+            title: 'loudness',
+            sortable: true,
+          }, {
+            field: 'mode',
+            title: 'mode',
+            sortable: true,
+          }, {
+            field: 'speechiness',
+            title: 'speechiness',
+            sortable: true,
+          }, {
+            field: 'tempo',
+            title: 'tempo',
+            sortable: true,
+          }, {
+            field: 'time_signature',
+            title: 'time_signature',
+            sortable: true,
+          }, {
+            field: 'valence',
+            title: 'valence',
+            sortable: true,
+          }, {
+            field: 'popularity',
+            title: 'popularity',
+            sortable: true,
+          }
+        ]
+        
+      })
+    }).trigger('change')
+  })
+</script>
+
+
+<script>
+Chart.defaults.global.defaultFontFamily = "Segoe UI Emoji";
+function makeBarChart() {
+    var labels= [{% for item in label_top_energy %}
+    "{{item}}",
+        {% endfor %}];
+    var data=  [{% for item in val_top_energy %}
+    "{{item}}",
+        {% endfor %}];
+    var colors = ['#6fcdcd','#ff829d','#5eb5ef','#ffd778','#a66ecc','#ff9f63','#2f75a3','#f27877','#bdbc37','#bdbc37'];
+    var chart = new Chart('barchart', {
+        type: "horizontalBar",
+        options: {
+            responsive:true,
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        fontSize: 16
+                    }
+                }],
+                xAxes: [{
+                    ticks: {
+                        fontSize: 20,
+                        min:0
+                    }
+                }]
+            },
+            layout: {
+                padding: {
+                left: 10,
+                right: 10,
+                top: 10,
+                bottom: 10
+                }
+            },
+            tooltips: {
+                mode: 'label',
+                position:'nearest',
+                titleFontSize:20,
+                titleSpacing:2,
+                titleMarginBottom:10,
+                bodyFontSize:16,
+                xPadding:10,
+                yPadding:10,
+                displayColors:false,
+                callbacks: {
+                    title: function() {},
+                    label: function(tooltipItem) {
+                        return Number(tooltipItem.value) + "% des commentaires";
+                    }
+                }
+            },
+            legend: {
+                display: false
+            },
+            title: {
+                display: true,
+                text: 'commentaires (%)',
+                position: 'bottom',
+                fontSize:18
+            },  
+        },
+        plugins: [{
+            beforeInit: function (chart) {
+                chart.data.labels.forEach(function (value, index, array) {
+                    var a = [];
+                    var a = value.match(/\b[\w']+(?:[^\w\n]+[\w']+){0,6}\b/g);
+                    array[index] = a;      
+                })
+            }
+        }],
+        data:  { 
+            labels: labels,
+            datasets: [
+                {
+                    data: data,
+                    backgroundColor: colors.slice(0,colors.length)
+                }]
+        }
+    });
+}
+
+makeBarChart();
+</script>
+
+
+
+
+
+<script>
+var ctx1 = document.getElementById("pie_chart_key");
+
+Chart.defaults.global.defaultFontFamily = "Segoe UI Emoji";
+function makePieChart() {
+    var labels= [{% for item in label_key %}
+    "{{item}}",
+        {% endfor %}];
+    
+    var data= [{% for item in val_key %}
+    "{{item}}",
+        {% endfor %}];
+    
+    var colors = ['#6fcdcd','#ff829d','#5eb5ef','#ffd778','#a66ecc','#ff9f63',
+                  '#2f75a3','#f27877','#bdbc37','#ff9f63','#2f75a3','#f27877','#bdbc37'];
+    var chart = new Chart(ctx1, {
+        type: "doughnut",
+        options: {
+            responsive:true,
+            layout: {
+                padding: {
+                    left: 10,
+                    right: 10,
+                    top: 10,
+                    bottom: 10
+                }
+            },
+            tooltips: {
+                position:'nearest',
+                titleFontSize:20,
+                titleSpacing:2,
+                titleMarginBottom:10,
+                bodyFontSize:16,
+                xPadding:10,
+                yPadding:10,
+                displayColors:false,
+                callbacks: {
+                    label: function(tooltipItem, data) {
+                        var dataset = data.datasets[tooltipItem.datasetIndex];
+                        var meta = dataset._meta[Object.keys(dataset._meta)[0]];
+                        var total = meta.total;
+                        var currentValue = dataset.data[tooltipItem.index];
+                        var percentage = parseFloat((currentValue/total*100).toFixed(1));
+                        return ' '+currentValue + '% des morceaux';
+                    },
+                    title: function(tooltipItem, data) {
+                        return data.labels[tooltipItem[0].index];
+                    }
+                }
+            },
+            legend: {
+                display: true,
+                position:'bottom',
+                align: "start",
+                labels:{         
+                    fontSize:18
+                },
+            },
+            title: {
+                display: false,
+                text: 'Conversations',
+                position: 'top'
+            },  
+        },
+        data:  { 
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors.slice(0,colors.length)
+            }]
+        }
+    });
+}
+    
+makePieChart();
+</script>
+
+<script>
+var ctx2 = document.getElementById("pie_chart_mode");
+
+Chart.defaults.global.defaultFontFamily = "Segoe UI Emoji";
+function makePieChartMode() {
+    var labels= [{% for item in label_mode %}
+    "{{item}}",
+        {% endfor %}];
+    
+    var data= [{% for item in val_mode %}
+    "{{item}}",
+        {% endfor %}];
+    
+    var colors = ['#6fcdcd','#ff829d'];
+    var chart = new Chart(ctx2, {
+        type: "doughnut",
+        options: {
+            responsive:true,
+            layout: {
+                padding: {
+                    left: 10,
+                    right: 10,
+                    top: 10,
+                    bottom: 10
+                }
+            },
+            tooltips: {
+                position:'nearest',
+                titleFontSize:20,
+                titleSpacing:2,
+                titleMarginBottom:10,
+                bodyFontSize:16,
+                xPadding:10,
+                yPadding:10,
+                displayColors:false,
+                callbacks: {
+                    label: function(tooltipItem, data) {
+                        var dataset = data.datasets[tooltipItem.datasetIndex];
+                        var meta = dataset._meta[Object.keys(dataset._meta)[0]];
+                        var total = meta.total;
+                        var currentValue = dataset.data[tooltipItem.index];
+                        var percentage = parseFloat((currentValue/total*100).toFixed(1));
+                        return ' '+currentValue + '% des morceaux';
+                    },
+                    title: function(tooltipItem, data) {
+                        return data.labels[tooltipItem[0].index];
+                    }
+                }
+            },
+            legend: {
+                display: true,
+                position:'bottom',
+                align: "start",
+                labels:{         
+                    fontSize:18
+                },
+            },
+            title: {
+                display: false,
+                text: 'Conversations',
+                position: 'top'
+            },  
+        },
+        data:  { 
+            labels: labels,
+            datasets: [{
+                data: data,
+                backgroundColor: colors.slice(0,colors.length)
+            }]
+        }
+    });
+}
+    
+makePieChartMode();
+</script>
 
 
 <script>
